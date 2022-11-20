@@ -7,4 +7,4 @@ data:
   pricing.yml: |
     fm:
       pricing:
-        price: 110
+        price: 200
