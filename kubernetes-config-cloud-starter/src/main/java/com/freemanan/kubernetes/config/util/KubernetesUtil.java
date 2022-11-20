@@ -1,0 +1,28 @@
+package com.freemanan.kubernetes.config.util;
+
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+
+/**
+ * @author Freeman
+ */
+public final class KubernetesUtil {
+
+    private KubernetesUtil() {
+        throw new AssertionError("No KubernetesUtil instances for you!");
+    }
+
+    private static final Config config = new ConfigBuilder().build();
+
+    private static final KubernetesClient client = new DefaultKubernetesClient(config);
+
+    public static String currentNamespace() {
+        return config.getNamespace();
+    }
+
+    public static KubernetesClient kubernetesClient() {
+        return client;
+    }
+}

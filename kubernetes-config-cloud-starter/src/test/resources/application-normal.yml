@@ -1,0 +1,12 @@
+microservice-base:
+  kubernetes:
+    config:
+      default-namespace: default
+      configmaps:
+        - name: my-configmap
+spring:
+  application:
+    name: normal
+logging:
+  level:
+    com.freemanan.kubernetesconfig: debug

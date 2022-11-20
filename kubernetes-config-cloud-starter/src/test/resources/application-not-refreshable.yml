@@ -1,0 +1,14 @@
+microservice-base:
+  kubernetes:
+    config:
+      default-namespace: default
+      configmaps:
+        - name: configmap-01
+        - name: configmap-02
+          refresh-enabled: false
+spring:
+  application:
+    name: not-refreshable
+logging:
+  level:
+    com.freemanan.kubernetesconfig: debug
