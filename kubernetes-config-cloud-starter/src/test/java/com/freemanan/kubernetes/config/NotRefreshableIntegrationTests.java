@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.freemanan.kubernetes.config.testsupport.KubernetesAvailable;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -17,6 +18,12 @@ import org.springframework.core.env.ConfigurableEnvironment;
 @KubernetesAvailable
 public class NotRefreshableIntegrationTests {
 
+    @BeforeAll
+    static void init() {
+        createOrReplaceConfigMap("not_refreshable/configmap-01.yaml");
+        createOrReplaceConfigMap("not_refreshable/configmap-02.yaml");
+    }
+
     @AfterAll
     static void recover() {
         deleteConfigMap("not_refreshable/configmap-01-changed.yaml");
@@ -25,10 +32,6 @@ public class NotRefreshableIntegrationTests {
 
     @Test
     void testNotRefreshable() throws InterruptedException {
-        // init configmap
-        createOrReplaceConfigMap("not_refreshable/configmap-01.yaml");
-        createOrReplaceConfigMap("not_refreshable/configmap-02.yaml");
-
         // start app
         ConfigurableApplicationContext ctx = new SpringApplicationBuilder(Empty.class)
                 .profiles("not-refreshable")

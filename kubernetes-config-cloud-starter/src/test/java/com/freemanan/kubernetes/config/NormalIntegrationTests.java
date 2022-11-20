@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.freemanan.kubernetes.config.testsupport.KubernetesAvailable;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -17,6 +18,11 @@ import org.springframework.core.env.ConfigurableEnvironment;
 @KubernetesAvailable
 public class NormalIntegrationTests {
 
+    @BeforeAll
+    static void init() {
+        createOrReplaceConfigMap("normal/configmap.yaml");
+    }
+
     @AfterAll
     static void recover() {
         deleteConfigMap("normal/configmap-changed.yaml");
@@ -24,9 +30,6 @@ public class NormalIntegrationTests {
 
     @Test
     void testNormal() throws InterruptedException {
-        // init configmap
-        createOrReplaceConfigMap("normal/configmap.yaml");
-
         // start app
         ConfigurableApplicationContext ctx =
                 new SpringApplicationBuilder(Empty.class).profiles("normal").run();

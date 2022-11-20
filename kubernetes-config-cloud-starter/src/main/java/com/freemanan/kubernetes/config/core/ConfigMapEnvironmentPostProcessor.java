@@ -13,7 +13,6 @@ import com.freemanan.kubernetes.config.file.FileProcessor;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.StandardEnvironment;
 
 /**
  * @author Freeman
@@ -68,8 +68,9 @@ public class ConfigMapEnvironmentPostProcessor implements EnvironmentPostProcess
                 remotePropertySourceList.forEach(propertySources::addLast);
                 break;
             case REMOTE:
-                Collections.reverse(remotePropertySourceList);
-                remotePropertySourceList.forEach(propertySources::addFirst);
+                // we can't let it override the system environment properties
+                remotePropertySourceList.forEach(ps ->
+                        propertySources.addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, ps));
                 break;
             default:
                 throw new IllegalArgumentException("Unknown preference: " + properties.getPreference());

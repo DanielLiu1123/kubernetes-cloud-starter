@@ -2,3 +2,6 @@ rootProject.name = 'kubernetes-cloud-starter'
 
 include(':kubernetes-config-cloud-starter')
 include(':kubernetes-discovery-cloud-starter')
+
+// examples
+include(':examples:kubernetes-config')

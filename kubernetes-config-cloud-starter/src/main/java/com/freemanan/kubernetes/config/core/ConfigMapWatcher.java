@@ -9,7 +9,7 @@ import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,7 +32,7 @@ public class ConfigMapWatcher
         implements ApplicationListener<ApplicationReadyEvent>, ApplicationEventPublisherAware, DisposableBean {
     private static final Logger log = LoggerFactory.getLogger(ConfigMapWatcher.class);
 
-    private final Map<ConfigMapKey, SharedIndexInformer<ConfigMap>> informers = new HashMap<>();
+    private final Map<ConfigMapKey, SharedIndexInformer<ConfigMap>> informers = new LinkedHashMap<>();
 
     private ApplicationEventPublisher publisher;
 

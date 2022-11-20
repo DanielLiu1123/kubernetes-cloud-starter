@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: kubernetes-config
+microservice-base:
+  kubernetes:
+    config:
+      config-maps:
+        - name: configmap-example-01
+        - name: configmap-example-02
+          namespace: ns-2
+        - name: configmap-example-03
+          namespace: ns-3
+          refresh-enabled: false
+logging:
+  level:
+    com.freemanan.kubernetes.config: debug
+fm:
+  pricing:
+    price: 100

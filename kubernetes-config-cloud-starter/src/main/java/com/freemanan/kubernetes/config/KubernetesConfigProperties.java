@@ -5,6 +5,7 @@ import static com.freemanan.kubernetes.config.util.KubernetesUtil.currentNamespa
 import com.freemanan.kubernetes.config.util.ConfigPreference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -23,12 +24,12 @@ public class KubernetesConfigProperties {
      * <p> 1. If in Kubernetes environment, use the namespace of the current pod.
      * <p> 2. If not in Kubernetes environment, use the namespace of the current context.
      */
-    private String defaultNamespace = currentNamespace();
+    private String defaultNamespace = determineNamespace();
 
     /**
-     * Config preference, default is {@link ConfigPreference#LOCAL}, means local configurations 'win', will override the remote configurations.
+     * Config preference, default is {@link ConfigPreference#REMOTE}, means remote configurations 'win', will override the local configurations.
      */
-    private ConfigPreference preference = ConfigPreference.LOCAL;
+    private ConfigPreference preference = ConfigPreference.REMOTE;
 
     private List<ConfigMap> configMaps = new ArrayList<>();
 
@@ -51,5 +52,9 @@ public class KubernetesConfigProperties {
          * Whether to enable the auto refresh on current ConfigMap, using {@link KubernetesConfigProperties#refreshEnabled} if not set.
          */
         private Boolean refreshEnabled;
+    }
+
+    private static String determineNamespace() {
+        return Optional.ofNullable(currentNamespace()).orElse("default");
     }
 }

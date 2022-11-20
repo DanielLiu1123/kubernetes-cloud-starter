@@ -9,4 +9,4 @@ spring:
     name: normal
 logging:
   level:
-    com.freemanan.kubernetesconfig: debug
+    com.freemanan.kubernetes.config: debug

@@ -18,6 +18,10 @@ public final class KubernetesUtil {
 
     private static final KubernetesClient client = new DefaultKubernetesClient(config);
 
+    public static Config config() {
+        return config;
+    }
+
     public static String currentNamespace() {
         return config.getNamespace();
     }

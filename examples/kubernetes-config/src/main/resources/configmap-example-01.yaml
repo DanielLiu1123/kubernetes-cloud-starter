@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-example-01
+  namespace: default
+data:
+  pricing.yml: |
+    fm:
+      pricing:
+        price: 110
