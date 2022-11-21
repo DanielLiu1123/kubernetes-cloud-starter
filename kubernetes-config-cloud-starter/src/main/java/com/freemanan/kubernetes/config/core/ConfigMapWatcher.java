@@ -1,6 +1,7 @@
 package com.freemanan.kubernetes.config.core;
 
 import static com.freemanan.kubernetes.config.util.Exister.isExistFromBeginning;
+import static com.freemanan.kubernetes.config.util.Util.configMapKey;
 import static com.freemanan.kubernetes.config.util.Util.namespace;
 import static com.freemanan.kubernetes.config.util.Util.refreshable;
 
@@ -45,7 +46,7 @@ public class ConfigMapWatcher
         properties.getConfigMaps().stream()
                 .filter(cm -> refreshable(cm, properties))
                 .forEach(cm -> informers.put(
-                        new ConfigMapKey(cm.getName(), namespace(cm, properties), refreshable(cm, properties)),
+                        configMapKey(cm, properties),
                         client.configMaps()
                                 .inNamespace(namespace(cm, properties))
                                 .withName(cm.getName())
@@ -71,7 +72,7 @@ public class ConfigMapWatcher
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         informers.values().forEach(SharedIndexInformer::close);
         log.info("ConfigMap informers closed");
     }
@@ -81,7 +82,7 @@ public class ConfigMapWatcher
 
         private final ApplicationEventPublisher publisher;
         private final ConfigMapKey configMap;
-        private final AtomicBoolean canRefresh = new AtomicBoolean(false);
+        private final AtomicBoolean isFirstTrigger = new AtomicBoolean(true);
 
         private ConfigMapEventHandler(ApplicationEventPublisher publisher, ConfigMapKey configMap) {
             this.publisher = publisher;
@@ -96,12 +97,15 @@ public class ConfigMapWatcher
                         obj.getMetadata().getName(),
                         obj.getMetadata().getNamespace());
             }
-            // 1. If there is no ConfigMap at the beginning, when add a ConfigMap, we should trigger a refresh event
-            // 2. If there is a ConfigMap at the beginning, when application start up, the informer will trigger an
-            // onAdd event, but at this phase, we don't want to trigger a refresh event
-            if (!isExistFromBeginning(configMap) || canRefresh.getAndSet(true)) {
-                refresh();
+            // 1. If there is no ConfigMap from beginning, when add a ConfigMap, we should trigger a refresh event.
+            // 2. If there is a ConfigMap from beginning, when application start up, the informer will trigger an
+            // onAdd event, but at this phase, we don't want to trigger a refresh event.
+            // So if the ConfigMap exist from beginning, and it's the first time to trigger the event, we should just
+            // ignore it
+            if (isExistFromBeginning(configMap) && isFirstTrigger.getAndSet(false)) {
+                return;
             }
+            refresh();
         }
 
         @Override
