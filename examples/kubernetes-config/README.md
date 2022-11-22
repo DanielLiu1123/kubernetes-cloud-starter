@@ -1,6 +1,18 @@
 ### Steps to run the example
 
-1. Start
+First of all, you need a Kubernetes cluster. You can
+use [docker-desktop](https://www.docker.com/products/docker-desktop/)
+or [minikube](https://kubernetes.io/zh-cn/docs/tutorials/hello-minikube/).
+
+1. Create role and role binding for the service account
+    ```bash
+    # we need get and watch permissions of configmaps
+    kubectl create clusterrole configmap-cluster-reader --verb=get,watch --resource=configmaps
+    # bind the ClusterRole to the service account (namespace: default, name: default)
+    kubectl create clusterrolebinding configmap-cluster-reader-default --clusterrole configmap-cluster-reader --serviceaccount default:default
+    ```
+
+2. Start
     ```shell
     ./gradlew clean bootJar
     
@@ -15,7 +27,7 @@
    # you should see the response is `100`
    ```
 
-2. Add a configmap
+3. Add a configmap
     ```shell
     kubectl apply -f examples/kubernetes-config/configmap-example-01.yaml
    
@@ -24,8 +36,10 @@
     # you should see the response is `200`
     ```
 
-3. Delete the resources
+4. Delete the resources
     ```shell
     kubectl delete -f examples/kubernetes-config/deployment.yaml
     kubectl delete -f examples/kubernetes-config/configmap-example-01.yaml
+    kubectl delete clusterrole configmap-cluster-reader
+    kubectl delete clusterrolebinding configmap-cluster-reader-default
     ```
