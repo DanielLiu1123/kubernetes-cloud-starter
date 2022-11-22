@@ -6,8 +6,8 @@ or [minikube](https://kubernetes.io/zh-cn/docs/tutorials/hello-minikube/).
 
 1. Create role and role binding for the service account
     ```bash
-    # we need get and watch permissions of configmaps
-    kubectl create clusterrole configmap-cluster-reader --verb=get,watch --resource=configmaps
+    # we need get,list,watch permissions of configmaps
+    kubectl create clusterrole configmap-cluster-reader --verb=get,list,watch --resource=configmaps
     # bind the ClusterRole to the service account (namespace: default, name: default)
     kubectl create clusterrolebinding configmap-cluster-reader-default --clusterrole configmap-cluster-reader --serviceaccount default:default
     ```
