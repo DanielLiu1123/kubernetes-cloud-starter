@@ -9,7 +9,7 @@ or [minikube](https://kubernetes.io/zh-cn/docs/tutorials/hello-minikube/).
     # we need get,list,watch permissions of configmaps
     kubectl create clusterrole configmap-cluster-reader --verb=get,list,watch --resource=configmaps
     # bind the ClusterRole to the service account (namespace: default, name: default)
-    kubectl create clusterrolebinding configmap-cluster-reader-default --clusterrole configmap-cluster-reader --serviceaccount default:default
+    kubectl create clusterrolebinding configmap-cluster-reader-default-default --clusterrole configmap-cluster-reader --serviceaccount default:default
     ```
 
 2. Start
@@ -41,5 +41,5 @@ or [minikube](https://kubernetes.io/zh-cn/docs/tutorials/hello-minikube/).
     kubectl delete -f examples/kubernetes-config/deployment.yaml
     kubectl delete -f examples/kubernetes-config/configmap-example-01.yaml
     kubectl delete clusterrole configmap-cluster-reader
-    kubectl delete clusterrolebinding configmap-cluster-reader-default
+    kubectl delete clusterrolebinding configmap-cluster-reader-default-default
     ```
