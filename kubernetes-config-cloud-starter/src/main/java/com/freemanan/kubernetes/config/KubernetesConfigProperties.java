@@ -6,13 +6,11 @@ import com.freemanan.kubernetes.config.util.ConfigPreference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author Freeman
  */
-@Data
 @ConfigurationProperties(KubernetesConfigProperties.PREFIX)
 public class KubernetesConfigProperties {
     public static final String PREFIX = "microservice-base.kubernetes.config";
@@ -38,7 +36,56 @@ public class KubernetesConfigProperties {
      */
     private boolean refreshEnabled = true;
 
-    @Data
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getDefaultNamespace() {
+        return defaultNamespace;
+    }
+
+    public void setDefaultNamespace(String defaultNamespace) {
+        this.defaultNamespace = defaultNamespace;
+    }
+
+    public ConfigPreference getPreference() {
+        return preference;
+    }
+
+    public void setPreference(ConfigPreference preference) {
+        this.preference = preference;
+    }
+
+    public List<ConfigMap> getConfigMaps() {
+        return configMaps;
+    }
+
+    public void setConfigMaps(List<ConfigMap> configMaps) {
+        this.configMaps = configMaps;
+    }
+
+    public boolean isRefreshEnabled() {
+        return refreshEnabled;
+    }
+
+    public void setRefreshEnabled(boolean refreshEnabled) {
+        this.refreshEnabled = refreshEnabled;
+    }
+
+    @Override
+    public String toString() {
+        return "KubernetesConfigProperties{" + "enabled="
+                + enabled + ", defaultNamespace='"
+                + defaultNamespace + '\'' + ", preference="
+                + preference + ", configMaps="
+                + configMaps + ", refreshEnabled="
+                + refreshEnabled + '}';
+    }
+
     public static class ConfigMap {
         /**
          * ConfigMap name.
@@ -52,6 +99,38 @@ public class KubernetesConfigProperties {
          * Whether to enable the auto refresh on current ConfigMap, using {@link KubernetesConfigProperties#refreshEnabled} if not set.
          */
         private Boolean refreshEnabled;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getNamespace() {
+            return namespace;
+        }
+
+        public void setNamespace(String namespace) {
+            this.namespace = namespace;
+        }
+
+        public Boolean getRefreshEnabled() {
+            return refreshEnabled;
+        }
+
+        public void setRefreshEnabled(Boolean refreshEnabled) {
+            this.refreshEnabled = refreshEnabled;
+        }
+
+        @Override
+        public String toString() {
+            return "ConfigMap{" + "name='"
+                    + name + '\'' + ", namespace='"
+                    + namespace + '\'' + ", refreshEnabled="
+                    + refreshEnabled + '}';
+        }
     }
 
     private static String determineNamespace() {
