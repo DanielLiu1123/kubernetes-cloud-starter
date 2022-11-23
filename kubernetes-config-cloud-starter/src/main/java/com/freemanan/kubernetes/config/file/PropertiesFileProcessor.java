@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.env.PropertiesPropertySourceLoader;
 import org.springframework.core.env.CompositePropertySource;
+import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ByteArrayResource;
 
@@ -25,7 +26,7 @@ public class PropertiesFileProcessor implements FileProcessor {
     }
 
     @Override
-    public PropertySource<?> generate(String name, String content) {
+    public EnumerablePropertySource<?> generate(String name, String content) {
         CompositePropertySource propertySource = new CompositePropertySource(name);
         try {
             List<PropertySource<?>> pss =

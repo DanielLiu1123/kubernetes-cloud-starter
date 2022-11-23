@@ -11,7 +11,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 public final class KubernetesUtil {
 
     private KubernetesUtil() {
-        throw new AssertionError("No KubernetesUtil instances for you!");
+        throw new UnsupportedOperationException("No KubernetesUtil instances for you!");
     }
 
     private static final Config config = new ConfigBuilder().build();

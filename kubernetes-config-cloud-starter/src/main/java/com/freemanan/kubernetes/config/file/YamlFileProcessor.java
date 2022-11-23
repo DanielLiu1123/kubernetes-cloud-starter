@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.env.CompositePropertySource;
+import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -26,7 +27,7 @@ public class YamlFileProcessor implements FileProcessor {
     }
 
     @Override
-    public PropertySource<?> generate(String name, String content) {
+    public EnumerablePropertySource<?> generate(String name, String content) {
         Resource resource = new ByteArrayResource(content.getBytes(StandardCharsets.UTF_8));
         CompositePropertySource propertySource = new CompositePropertySource(name);
         try {

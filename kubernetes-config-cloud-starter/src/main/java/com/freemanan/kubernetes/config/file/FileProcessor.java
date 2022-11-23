@@ -1,6 +1,6 @@
 package com.freemanan.kubernetes.config.file;
 
-import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.EnumerablePropertySource;
 
 /**
  * @author Freeman
@@ -22,5 +22,5 @@ public interface FileProcessor {
      * @param content file content
      * @return property source
      */
-    PropertySource<?> generate(String name, String content);
+    EnumerablePropertySource<?> generate(String name, String content);
 }

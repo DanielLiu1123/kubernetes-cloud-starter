@@ -1,11 +1,12 @@
 package com.freemanan.kubernetes.config.core;
 
-import static com.freemanan.kubernetes.config.util.Exister.isExistFromBeginning;
+import static com.freemanan.kubernetes.config.util.Exister.existWhenAppStartup;
 import static com.freemanan.kubernetes.config.util.Util.configMapKey;
 import static com.freemanan.kubernetes.config.util.Util.namespace;
 import static com.freemanan.kubernetes.config.util.Util.refreshable;
 
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
+import com.freemanan.kubernetes.config.util.Converter;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
@@ -23,6 +24,9 @@ import org.springframework.cloud.endpoint.event.RefreshEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 
 /**
  * Watcher for ConfigMap changes.
@@ -30,12 +34,16 @@ import org.springframework.context.ApplicationListener;
  * @author Freeman
  */
 public class ConfigMapWatcher
-        implements ApplicationListener<ApplicationReadyEvent>, ApplicationEventPublisherAware, DisposableBean {
+        implements ApplicationListener<ApplicationReadyEvent>,
+                ApplicationEventPublisherAware,
+                EnvironmentAware,
+                DisposableBean {
     private static final Logger log = LoggerFactory.getLogger(ConfigMapWatcher.class);
 
     private final Map<ConfigMapKey, SharedIndexInformer<ConfigMap>> informers = new LinkedHashMap<>();
 
     private ApplicationEventPublisher publisher;
+    private ConfigurableEnvironment environment;
 
     public ConfigMapWatcher(KubernetesConfigProperties properties, KubernetesClient client) {
         initInformersForEachRefreshableConfigMap(properties, client);
@@ -59,7 +67,8 @@ public class ConfigMapWatcher
     }
 
     private void startWatchingConfigMaps() {
-        informers.forEach((cm, informer) -> informer.addEventHandler(new ConfigMapEventHandler(publisher, cm)));
+        informers.forEach(
+                (cm, informer) -> informer.addEventHandler(new ConfigMapEventHandler(cm, publisher, environment)));
         List<String> configMapNames = informers.keySet().stream()
                 .map(cm -> String.join(".", cm.getName(), cm.getNamespace()))
                 .collect(Collectors.toList());
@@ -77,16 +86,27 @@ public class ConfigMapWatcher
         log.info("ConfigMap informers closed");
     }
 
+    @Override
+    public void setEnvironment(Environment environment) {
+        if (!(environment instanceof ConfigurableEnvironment)) {
+            throw new IllegalStateException("Environment must be an instance of ConfigurableEnvironment");
+        }
+        this.environment = (ConfigurableEnvironment) environment;
+    }
+
     private static class ConfigMapEventHandler implements ResourceEventHandler<ConfigMap> {
         private static final Logger log = LoggerFactory.getLogger(ConfigMapEventHandler.class);
 
         private final ApplicationEventPublisher publisher;
         private final ConfigMapKey configMap;
         private final AtomicBoolean isFirstTrigger = new AtomicBoolean(true);
+        private final ConfigurableEnvironment environment;
 
-        private ConfigMapEventHandler(ApplicationEventPublisher publisher, ConfigMapKey configMap) {
-            this.publisher = publisher;
+        private ConfigMapEventHandler(
+                ConfigMapKey configMap, ApplicationEventPublisher publisher, ConfigurableEnvironment environment) {
             this.configMap = configMap;
+            this.publisher = publisher;
+            this.environment = environment;
         }
 
         @Override
@@ -102,7 +122,7 @@ public class ConfigMapWatcher
             // onAdd event, but at this phase, we don't want to trigger a refresh event.
             // So if the ConfigMap exist from beginning, and it's the first time to trigger the event, we should just
             // ignore it
-            if (isExistFromBeginning(configMap) && isFirstTrigger.getAndSet(false)) {
+            if (existWhenAppStartup(configMap) && isFirstTrigger.getAndSet(false)) {
                 return;
             }
             refresh();
@@ -127,7 +147,13 @@ public class ConfigMapWatcher
                         obj.getMetadata().getName(),
                         obj.getMetadata().getNamespace());
             }
+            deletePropertySourceOfConfigMap(obj);
             refresh();
+        }
+
+        private void deletePropertySourceOfConfigMap(ConfigMap configMap) {
+            String propertySourceName = Converter.propertySourceNameForConfigMap(configMap);
+            environment.getPropertySources().remove(propertySourceName);
         }
 
         private void refresh() {

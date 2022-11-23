@@ -13,7 +13,7 @@ import java.util.List;
 public final class Processors {
 
     private Processors() {
-        throw new AssertionError("No Processors instances for you!");
+        throw new UnsupportedOperationException("No Processors instances for you!");
     }
 
     private static final List<FileProcessor> processors =

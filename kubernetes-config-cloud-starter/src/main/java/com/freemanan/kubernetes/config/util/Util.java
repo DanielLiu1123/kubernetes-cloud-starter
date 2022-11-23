@@ -10,7 +10,7 @@ import java.util.Optional;
 public final class Util {
 
     private Util() {
-        throw new AssertionError("No Util instances for you!");
+        throw new UnsupportedOperationException("No Util instances for you!");
     }
 
     public static ConfigMapKey configMapKey(
