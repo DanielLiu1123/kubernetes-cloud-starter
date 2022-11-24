@@ -9,8 +9,8 @@ configuration updates without restarting the application.
 
 ### Quick Start
 
-First you need a Kubernetes cluster, you can use [docker-desktop](https://www.docker.comproductsdocker-desktop)
-or [minikube](https://minikube.sigs.k8s.iodocs) to create a cluster.
+First you need a Kubernetes cluster, you can use [docker-desktop](https://www.docker.com/products/docker-desktop/)
+or [minikube](https://minikube.sigs.k8s.io/docs/) to create a cluster.
 
 1. Create Role and RoleBinding for ServiceAccount
     ```bash
