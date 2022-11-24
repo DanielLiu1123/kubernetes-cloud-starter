@@ -69,8 +69,8 @@ public class ConfigMapWatcher
     }
 
     private void startWatchingConfigMaps() {
-        informers.forEach(
-                (cm, informer) -> informer.addEventHandler(new ConfigMapEventHandler(cm, publisher, environment, properties)));
+        informers.forEach((cm, informer) ->
+                informer.addEventHandler(new ConfigMapEventHandler(cm, publisher, environment, properties)));
         List<String> configMapNames = informers.keySet().stream()
                 .map(cm -> String.join(".", cm.getName(), cm.getNamespace()))
                 .collect(Collectors.toList());
@@ -106,7 +106,10 @@ public class ConfigMapWatcher
         private final AtomicBoolean isFirstTrigger = new AtomicBoolean(true);
 
         private ConfigMapEventHandler(
-                ConfigMapKey configMap, ApplicationEventPublisher publisher, ConfigurableEnvironment environment, KubernetesConfigProperties properties) {
+                ConfigMapKey configMap,
+                ApplicationEventPublisher publisher,
+                ConfigurableEnvironment environment,
+                KubernetesConfigProperties properties) {
             this.configMap = configMap;
             this.publisher = publisher;
             this.environment = environment;
