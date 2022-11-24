@@ -29,6 +29,12 @@ public class KubernetesConfigProperties {
      */
     private ConfigPreference preference = ConfigPreference.REMOTE;
 
+    /**
+     * Whether to refresh environment when remote resource was deleted, default value is {@code false}.
+     * <p> The default value is {@code false} to prevent app arises abnormal situation from resource being deleted by mistake.
+     */
+    private boolean refreshOnDelete = false;
+
     private List<ConfigMap> configMaps = new ArrayList<>();
 
     /**
@@ -74,6 +80,14 @@ public class KubernetesConfigProperties {
 
     public void setRefreshEnabled(boolean refreshEnabled) {
         this.refreshEnabled = refreshEnabled;
+    }
+
+    public boolean isRefreshOnDelete() {
+        return refreshOnDelete;
+    }
+
+    public void setRefreshOnDelete(boolean refreshOnDelete) {
+        this.refreshOnDelete = refreshOnDelete;
     }
 
     @Override

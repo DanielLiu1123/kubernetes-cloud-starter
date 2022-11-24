@@ -41,11 +41,13 @@ public class ConfigMapWatcher
     private static final Logger log = LoggerFactory.getLogger(ConfigMapWatcher.class);
 
     private final Map<ConfigMapKey, SharedIndexInformer<ConfigMap>> informers = new LinkedHashMap<>();
+    private final KubernetesConfigProperties properties;
 
     private ApplicationEventPublisher publisher;
     private ConfigurableEnvironment environment;
 
     public ConfigMapWatcher(KubernetesConfigProperties properties, KubernetesClient client) {
+        this.properties = properties;
         initInformersForEachRefreshableConfigMap(properties, client);
     }
 
@@ -68,7 +70,7 @@ public class ConfigMapWatcher
 
     private void startWatchingConfigMaps() {
         informers.forEach(
-                (cm, informer) -> informer.addEventHandler(new ConfigMapEventHandler(cm, publisher, environment)));
+                (cm, informer) -> informer.addEventHandler(new ConfigMapEventHandler(cm, publisher, environment, properties)));
         List<String> configMapNames = informers.keySet().stream()
                 .map(cm -> String.join(".", cm.getName(), cm.getNamespace()))
                 .collect(Collectors.toList());
@@ -99,14 +101,16 @@ public class ConfigMapWatcher
 
         private final ApplicationEventPublisher publisher;
         private final ConfigMapKey configMap;
-        private final AtomicBoolean isFirstTrigger = new AtomicBoolean(true);
         private final ConfigurableEnvironment environment;
+        private final KubernetesConfigProperties properties;
+        private final AtomicBoolean isFirstTrigger = new AtomicBoolean(true);
 
         private ConfigMapEventHandler(
-                ConfigMapKey configMap, ApplicationEventPublisher publisher, ConfigurableEnvironment environment) {
+                ConfigMapKey configMap, ApplicationEventPublisher publisher, ConfigurableEnvironment environment, KubernetesConfigProperties properties) {
             this.configMap = configMap;
             this.publisher = publisher;
             this.environment = environment;
+            this.properties = properties;
         }
 
         @Override
@@ -147,8 +151,12 @@ public class ConfigMapWatcher
                         obj.getMetadata().getName(),
                         obj.getMetadata().getNamespace());
             }
-            deletePropertySourceOfConfigMap(obj);
-            refresh();
+            if (properties.isRefreshOnDelete()) {
+                deletePropertySourceOfConfigMap(obj);
+                refresh();
+            } else {
+                log.info("Refresh on delete is disabled, ignore the delete event");
+            }
         }
 
         private void deletePropertySourceOfConfigMap(ConfigMap configMap) {
