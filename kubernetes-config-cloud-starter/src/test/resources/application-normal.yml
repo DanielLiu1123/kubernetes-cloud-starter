@@ -10,3 +10,7 @@ spring:
 logging:
   level:
     com.freemanan.kubernetes.config: debug
+
+username: freeman
+hobbies:
+  - coding

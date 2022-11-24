@@ -53,6 +53,18 @@ public class NormalIntegrationTests {
         assertThat(env.getProperty("hobbies[1]")).isEqualTo("writing");
         assertThat(env.getProperty("hobbies[2]")).isEqualTo("coding");
 
+        // delete configmap
+        deleteConfigMap("normal/configmap-changed.yaml");
+
+        // context is refreshing
+        Thread.sleep(1500);
+
+        assertThat(env.getProperty("username")).isEqualTo("freeman");
+        assertThat(env.getProperty("password")).isNull();
+        assertThat(env.getProperty("hobbies[0]")).isEqualTo("coding");
+        assertThat(env.getProperty("hobbies[1]")).isNull();
+        assertThat(env.getProperty("hobbies[2]")).isNull();
+
         ctx.close();
     }
 }
