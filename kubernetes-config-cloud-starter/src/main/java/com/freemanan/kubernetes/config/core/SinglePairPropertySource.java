@@ -1,5 +1,6 @@
 package com.freemanan.kubernetes.config.core;
 
+import com.freemanan.kubernetes.config.util.Pair;
 import java.util.Collections;
 import java.util.Map;
 import org.springframework.core.env.MapPropertySource;
@@ -16,8 +17,9 @@ public class SinglePairPropertySource extends MapPropertySource {
         super(propertySourceName, Collections.singletonMap(key, value));
     }
 
-    public Map.Entry<String, Object> getSinglePair() {
+    public Pair<String, Object> getSinglePair() {
         Map<String, Object> source = getSource();
-        return source.entrySet().iterator().next();
+        Map.Entry<String, Object> entry = source.entrySet().iterator().next();
+        return Pair.of(entry.getKey(), entry.getValue());
     }
 }

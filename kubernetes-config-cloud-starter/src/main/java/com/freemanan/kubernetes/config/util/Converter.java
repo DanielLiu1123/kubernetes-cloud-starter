@@ -1,6 +1,7 @@
 package com.freemanan.kubernetes.config.util;
 
 import static com.freemanan.kubernetes.config.util.Processors.fileProcessors;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.freemanan.kubernetes.config.core.SinglePairPropertySource;
 import com.freemanan.kubernetes.config.file.FileProcessor;
@@ -41,10 +42,7 @@ public final class Converter {
             Map<String, Object> pairProperties = singlePairPropertySources.stream()
                     .map(SinglePairPropertySource::getSinglePair)
                     .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            (oldValue, newValue) -> newValue,
-                            LinkedHashMap::new));
+                            Pair::getKey, Pair::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new));
             compositePropertySource.addPropertySource(
                     new MapPropertySource(propertySourceName + "[pair]", pairProperties));
         }
@@ -82,7 +80,7 @@ public final class Converter {
         Map<String, String> data = secret.getData();
         Map<String, Object> encodedValue = new LinkedHashMap<>(data);
         data.replaceAll((key, value) -> StringUtils.trimTrailingWhitespace(
-                new String(Base64.getDecoder().decode(value)))); // it will add newlines automatically
+                new String(Base64.getDecoder().decode(value), UTF_8))); // it will add newlines automatically
         Map<String, String> decodedValue = new LinkedHashMap<>(data);
         CompositePropertySource result = new CompositePropertySource(propertySourceNameForResource(secret));
         result.addPropertySource(toPropertySource(propertySourceNameForResource(secret) + "[decoded]", decodedValue));
