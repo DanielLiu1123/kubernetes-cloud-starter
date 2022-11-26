@@ -25,6 +25,6 @@ public class Controller {
 
     @GetMapping("/namespace")
     public Object namespace() {
-        return kubernetesConfigProperties.getDefaultNamespace();
+        return kubernetesConfigProperties.getNamespace();
     }
 }
