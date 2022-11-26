@@ -11,6 +11,7 @@ import com.freemanan.kubernetes.config.KubernetesConfigProperties;
 import com.freemanan.kubernetes.config.util.Converter;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -63,6 +64,8 @@ public class ConfigMapEnvironmentPostProcessor implements EnvironmentPostProcess
         MutablePropertySources propertySources = environment.getPropertySources();
         switch (properties.getPreference()) {
             case LOCAL:
+                // The latter config should win the previous config
+                Collections.reverse(remotePropertySources);
                 remotePropertySources.forEach(propertySources::addLast);
                 break;
             case REMOTE:

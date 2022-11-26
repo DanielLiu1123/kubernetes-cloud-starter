@@ -5,6 +5,7 @@ import static com.freemanan.kubernetes.config.util.KubernetesUtil.currentNamespa
 import com.freemanan.kubernetes.config.util.ConfigPreference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -100,6 +101,24 @@ public class KubernetesConfigProperties {
                 + refreshEnabled + '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KubernetesConfigProperties that = (KubernetesConfigProperties) o;
+        return enabled == that.enabled
+                && refreshOnDelete == that.refreshOnDelete
+                && refreshEnabled == that.refreshEnabled
+                && Objects.equals(defaultNamespace, that.defaultNamespace)
+                && preference == that.preference
+                && Objects.equals(configMaps, that.configMaps);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(enabled, defaultNamespace, preference, refreshOnDelete, configMaps, refreshEnabled);
+    }
+
     public static class ConfigMap {
         /**
          * ConfigMap name.
@@ -144,6 +163,21 @@ public class KubernetesConfigProperties {
                     + name + '\'' + ", namespace='"
                     + namespace + '\'' + ", refreshEnabled="
                     + refreshEnabled + '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ConfigMap configMap = (ConfigMap) o;
+            return Objects.equals(name, configMap.name)
+                    && Objects.equals(namespace, configMap.namespace)
+                    && Objects.equals(refreshEnabled, configMap.refreshEnabled);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, namespace, refreshEnabled);
         }
     }
 
