@@ -25,7 +25,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
 /**
- * Watcher for ConfigMap changes.
+ * Watcher for config resource changes.
  *
  * @author Freeman
  */
