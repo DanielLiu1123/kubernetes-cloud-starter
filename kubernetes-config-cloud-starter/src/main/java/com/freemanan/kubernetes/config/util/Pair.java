@@ -1,4 +1,4 @@
-package com.freemanan.kubernetes.config.core;
+package com.freemanan.kubernetes.config.util;
 
 /**
  * @author Freeman

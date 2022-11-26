@@ -13,6 +13,7 @@ import static java.util.stream.Collectors.toList;
 
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
 import com.freemanan.kubernetes.config.util.Converter;
+import com.freemanan.kubernetes.config.util.Pair;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import java.util.Collections;
