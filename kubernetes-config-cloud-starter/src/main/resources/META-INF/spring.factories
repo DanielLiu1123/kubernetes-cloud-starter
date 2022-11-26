@@ -1,4 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.freemanan.kubernetes.config.KubernetesConfigAutoConfiguration
 org.springframework.boot.env.EnvironmentPostProcessor=\
-  com.freemanan.kubernetes.config.core.ConfigMapEnvironmentPostProcessor
+  com.freemanan.kubernetes.config.core.ConfigEnvironmentPostProcessor

@@ -8,6 +8,7 @@ import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Secret;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MapPropertySource;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Freeman
@@ -76,7 +78,17 @@ public final class Converter {
      * @return the property source
      */
     public static EnumerablePropertySource<?> toPropertySource(Secret secret) {
-        return toPropertySource(propertySourceNameForResource(secret), secret.getData());
+        // data is base64 encoded
+        Map<String, String> data = secret.getData();
+        Map<String, Object> encodedValue = new LinkedHashMap<>(data);
+        data.replaceAll((key, value) -> StringUtils.trimTrailingWhitespace(
+                new String(Base64.getDecoder().decode(value)))); // it will add newlines automatically
+        Map<String, String> decodedValue = new LinkedHashMap<>(data);
+        CompositePropertySource result = new CompositePropertySource(propertySourceNameForResource(secret));
+        result.addPropertySource(toPropertySource(propertySourceNameForResource(secret) + "[decoded]", decodedValue));
+        result.addPropertySource(
+                new MapPropertySource(propertySourceNameForResource(secret) + "[encoded]", encodedValue));
+        return result;
     }
 
     /**

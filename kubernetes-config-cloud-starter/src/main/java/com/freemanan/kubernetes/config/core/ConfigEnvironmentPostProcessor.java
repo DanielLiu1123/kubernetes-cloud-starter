@@ -37,7 +37,7 @@ import org.springframework.core.env.StandardEnvironment;
 /**
  * @author Freeman
  */
-public class ConfigMapEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
+public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
     /**
      * If this is not the first call, we consider it as a refresh event.
      */
@@ -46,7 +46,7 @@ public class ConfigMapEnvironmentPostProcessor implements EnvironmentPostProcess
     private final Log log;
     private final KubernetesClient client;
 
-    public ConfigMapEnvironmentPostProcessor(DeferredLogFactory logFactory) {
+    public ConfigEnvironmentPostProcessor(DeferredLogFactory logFactory) {
         this.log = logFactory.getLog(getClass());
         this.client = kubernetesClient();
     }

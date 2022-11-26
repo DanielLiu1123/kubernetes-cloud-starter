@@ -218,9 +218,10 @@ public class KubernetesConfigProperties {
          */
         private String namespace;
         /**
-         * Whether to enable the auto refresh on current Secret, using {@link KubernetesConfigProperties#refreshEnabled} if not set.
+         * Whether to enable the auto refresh on current Secret, default value is {@code false}.
+         * <p> Use {@link KubernetesConfigProperties#refreshEnabled} if not set.
          */
-        private Boolean refreshEnabled;
+        private Boolean refreshEnabled = false;
         /**
          * Config preference, using {@link KubernetesConfigProperties#preference} if not set.
          */
