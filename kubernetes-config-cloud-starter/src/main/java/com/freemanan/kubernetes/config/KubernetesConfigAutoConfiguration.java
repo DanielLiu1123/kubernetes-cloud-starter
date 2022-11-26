@@ -1,6 +1,6 @@
 package com.freemanan.kubernetes.config;
 
-import com.freemanan.kubernetes.config.core.ConfigMapWatcher;
+import com.freemanan.kubernetes.config.core.ConfigWatcher;
 import com.freemanan.kubernetes.config.util.KubernetesUtil;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -27,7 +27,7 @@ public class KubernetesConfigAutoConfiguration {
     }
 
     @Bean
-    public ConfigMapWatcher configMapWatcher(KubernetesConfigProperties properties, KubernetesClient kubernetesClient) {
-        return new ConfigMapWatcher(properties, kubernetesClient);
+    public ConfigWatcher configWatcher(KubernetesConfigProperties properties, KubernetesClient kubernetesClient) {
+        return new ConfigWatcher(properties, kubernetesClient);
     }
 }

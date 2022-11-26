@@ -1,22 +1,25 @@
 package com.freemanan.kubernetes.config.core;
 
+import static com.freemanan.kubernetes.config.util.Converter.toPropertySource;
 import static com.freemanan.kubernetes.config.util.Exister.clean;
-import static com.freemanan.kubernetes.config.util.Exister.markNotExistWhenAppStartup;
+import static com.freemanan.kubernetes.config.util.Exister.markNotExistWhenPrepareEnvironment;
 import static com.freemanan.kubernetes.config.util.KubernetesUtil.kubernetesClient;
-import static com.freemanan.kubernetes.config.util.Util.configMapKey;
 import static com.freemanan.kubernetes.config.util.Util.namespace;
 import static com.freemanan.kubernetes.config.util.Util.preference;
 import static com.freemanan.kubernetes.config.util.Util.refreshable;
+import static com.freemanan.kubernetes.config.util.Util.resourceKey;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
-import com.freemanan.kubernetes.config.util.Converter;
+import com.freemanan.kubernetes.config.util.ConfigPreference;
 import com.freemanan.kubernetes.config.util.Pair;
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -60,39 +63,62 @@ public class ConfigMapEnvironmentPostProcessor implements EnvironmentPostProcess
         KubernetesConfigProperties properties = Binder.get(environment)
                 .bind(KubernetesConfigProperties.PREFIX, KubernetesConfigProperties.class)
                 .get();
-        MutablePropertySources propertySources = environment.getPropertySources();
 
-        properties.getConfigMaps().stream()
-                .map(cm -> Optional.ofNullable(propertySourceForConfigMap(cm, properties))
-                        .map(ps -> Pair.of(preference(cm, properties), ps))
-                        .orElse(null))
-                .filter(Objects::nonNull)
-                .collect(groupingBy(Pair::getKey, mapping(Pair::getValue, toList())))
-                .forEach((configPreference, remotePropertySources) -> {
-                    switch (configPreference) {
-                        case LOCAL:
-                            // The latter config should win the previous config
-                            Collections.reverse(remotePropertySources);
-                            remotePropertySources.forEach(propertySources::addLast);
-                            break;
-                        case REMOTE:
-                            // we can't let it override the system environment properties
-                            remotePropertySources.forEach(ps -> propertySources.addAfter(
-                                    StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, ps));
-                            break;
-                        default:
-                            throw new IllegalArgumentException("Unknown preference: " + properties.getPreference());
-                    }
-                });
+        pullConfigMaps(properties, environment);
+        pullSecrets(properties, environment);
 
         // After the first call, mark it as a refresh event.
         isRefreshEvent.set(true);
     }
 
+    private void pullConfigMaps(KubernetesConfigProperties properties, ConfigurableEnvironment environment) {
+        properties.getConfigMaps().stream()
+                .map(configmap -> Optional.ofNullable(propertySourceForConfigMap(configmap, properties))
+                        .map(ps -> Pair.of(preference(configmap, properties), ps))
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .collect(groupingBy(Pair::getKey, mapping(Pair::getValue, toList())))
+                .forEach((configPreference, remotePropertySources) -> {
+                    addPropertySourcesToEnvironment(environment, configPreference, remotePropertySources);
+                });
+    }
+
+    private void pullSecrets(KubernetesConfigProperties properties, ConfigurableEnvironment environment) {
+        properties.getSecrets().stream()
+                .map(secret -> Optional.ofNullable(propertySourceForSecret(secret, properties))
+                        .map(ps -> Pair.of(preference(secret, properties), ps))
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .collect(groupingBy(Pair::getKey, mapping(Pair::getValue, toList())))
+                .forEach((configPreference, remotePropertySources) -> {
+                    addPropertySourcesToEnvironment(environment, configPreference, remotePropertySources);
+                });
+    }
+
+    private static <T> void addPropertySourcesToEnvironment(
+            ConfigurableEnvironment environment,
+            ConfigPreference configPreference,
+            List<EnumerablePropertySource<T>> remotePropertySources) {
+        MutablePropertySources propertySources = environment.getPropertySources();
+        switch (configPreference) {
+            case LOCAL:
+                // The latter config should win the previous config
+                Collections.reverse(remotePropertySources);
+                remotePropertySources.forEach(propertySources::addLast);
+                break;
+            case REMOTE:
+                // we can't let it override the system environment properties
+                remotePropertySources.forEach(ps ->
+                        propertySources.addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, ps));
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown config preference: " + configPreference.name());
+        }
+    }
+
     private EnumerablePropertySource<?> propertySourceForConfigMap(
             KubernetesConfigProperties.ConfigMap cm, KubernetesConfigProperties properties) {
-        if (isRefreshEvent.get() && !refreshable(cm, properties)) {
-            // If this is a refresh event, we need to ignore the ConfigMap that not enabled auto refresh.
+        if (noNeedToReloadResource(refreshable(cm, properties))) {
             return null;
         }
         ConfigMap configMap = client.configMaps()
@@ -100,12 +126,35 @@ public class ConfigMapEnvironmentPostProcessor implements EnvironmentPostProcess
                 .withName(cm.getName())
                 .get();
         if (configMap == null) {
-            markNotExistWhenAppStartup(configMapKey(cm, properties));
+            markNotExistWhenPrepareEnvironment(resourceKey(cm, properties));
             log.warn(String.format(
                     "ConfigMap '%s' not found in namespace '%s'", cm.getName(), namespace(cm, properties)));
             return null;
         }
-        return Converter.toPropertySource(configMap);
+        return toPropertySource(configMap);
+    }
+
+    private EnumerablePropertySource<?> propertySourceForSecret(
+            KubernetesConfigProperties.Secret secret, KubernetesConfigProperties properties) {
+        if (noNeedToReloadResource(refreshable(secret, properties))) {
+            return null;
+        }
+        Secret secretInK8s = client.secrets()
+                .inNamespace(namespace(secret, properties))
+                .withName(secret.getName())
+                .get();
+        if (secretInK8s == null) {
+            markNotExistWhenPrepareEnvironment(resourceKey(secret, properties));
+            log.warn(String.format(
+                    "Secret '%s' not found in namespace '%s'", secret.getName(), namespace(secret, properties)));
+            return null;
+        }
+        return toPropertySource(secretInK8s);
+    }
+
+    private static boolean noNeedToReloadResource(boolean refreshable) {
+        // If this is a refresh event, we need to ignore the resource that not enabled auto refresh.
+        return isRefreshEvent.get() && !refreshable;
     }
 
     @Override

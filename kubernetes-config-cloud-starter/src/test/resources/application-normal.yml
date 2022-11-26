@@ -1,7 +1,7 @@
 microservice-base:
   kubernetes:
     config:
-      default-namespace: default
+      namespace: default
       configmaps:
         - name: my-configmap
 spring:
