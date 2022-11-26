@@ -17,10 +17,9 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
@@ -31,10 +30,7 @@ import org.springframework.core.env.Environment;
  * @author Freeman
  */
 public class ConfigWatcher
-        implements ApplicationListener<ApplicationReadyEvent>,
-                ApplicationEventPublisherAware,
-                EnvironmentAware,
-                DisposableBean {
+        implements SmartInitializingSingleton, ApplicationEventPublisherAware, EnvironmentAware, DisposableBean {
     private static final Logger log = LoggerFactory.getLogger(ConfigWatcher.class);
 
     private final Map<ResourceKey, SharedIndexInformer<ConfigMap>> configmapInformers = new LinkedHashMap<>();
@@ -70,28 +66,22 @@ public class ConfigWatcher
     }
 
     @Override
-    public void onApplicationEvent(ApplicationReadyEvent event) {
-        startWatching(configmapInformers);
-        startWatching(secretInformers);
-    }
-
-    private <T extends HasMetadata> void startWatching(Map<ResourceKey, SharedIndexInformer<T>> informers) {
-        informers.forEach((resourceKey, informer) -> informer.addEventHandler(
-                new HasMetadataResourceEventHandler(resourceKey, publisher, environment, properties)));
-        List<String> names = informers.keySet().stream()
-                .map(resourceKey -> String.join(".", resourceKey.getName(), resourceKey.getNamespace()))
-                .collect(Collectors.toList());
-        if (!names.isEmpty() && log.isInfoEnabled()) {
-            log.info(
-                    "Start watching {}s: {}",
-                    informers.keySet().iterator().next().getType(),
-                    names);
+    public void setEnvironment(Environment environment) {
+        if (!(environment instanceof ConfigurableEnvironment)) {
+            throw new IllegalStateException("Environment must be an instance of ConfigurableEnvironment");
         }
+        this.environment = (ConfigurableEnvironment) environment;
     }
 
     @Override
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         this.publisher = applicationEventPublisher;
+    }
+
+    @Override
+    public void afterSingletonsInstantiated() {
+        watch(configmapInformers);
+        watch(secretInformers);
     }
 
     @Override
@@ -101,11 +91,17 @@ public class ConfigWatcher
         log.info("ConfigMap and Secret informers closed");
     }
 
-    @Override
-    public void setEnvironment(Environment environment) {
-        if (!(environment instanceof ConfigurableEnvironment)) {
-            throw new IllegalStateException("Environment must be an instance of ConfigurableEnvironment");
+    private <T extends HasMetadata> void watch(Map<ResourceKey, SharedIndexInformer<T>> informers) {
+        informers.forEach((resourceKey, informer) ->
+                informer.addEventHandler(new HasMetadataResourceEventHandler(publisher, environment, properties)));
+        List<String> names = informers.keySet().stream()
+                .map(resourceKey -> String.join(".", resourceKey.getName(), resourceKey.getNamespace()))
+                .collect(Collectors.toList());
+        if (!names.isEmpty() && log.isInfoEnabled()) {
+            log.info(
+                    "Start watching {}s: {}",
+                    informers.keySet().iterator().next().getType(),
+                    names);
         }
-        this.environment = (ConfigurableEnvironment) environment;
     }
 }

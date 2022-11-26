@@ -1,13 +1,10 @@
 package com.freemanan.kubernetes.config.core;
 
 import static com.freemanan.kubernetes.config.util.Converter.toPropertySource;
-import static com.freemanan.kubernetes.config.util.Exister.clean;
-import static com.freemanan.kubernetes.config.util.Exister.markNotExistWhenPrepareEnvironment;
 import static com.freemanan.kubernetes.config.util.KubernetesUtil.kubernetesClient;
 import static com.freemanan.kubernetes.config.util.Util.namespace;
 import static com.freemanan.kubernetes.config.util.Util.preference;
 import static com.freemanan.kubernetes.config.util.Util.refreshable;
-import static com.freemanan.kubernetes.config.util.Util.resourceKey;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -41,7 +38,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
     /**
      * If this is not the first call, we consider it as a refresh event.
      */
-    private static final AtomicBoolean isRefreshEvent = new AtomicBoolean(false);
+    private static final AtomicBoolean isRefreshing = new AtomicBoolean(false);
 
     private final Log log;
     private final KubernetesClient client;
@@ -53,9 +50,6 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        // clean all ConfigMap that marked as not exist
-        clean();
-
         Boolean enabled = environment.getProperty(KubernetesConfigProperties.PREFIX + ".enabled", Boolean.class, true);
         if (!enabled) {
             return;
@@ -64,11 +58,12 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
                 .bind(KubernetesConfigProperties.PREFIX, KubernetesConfigProperties.class)
                 .get();
 
+        // TODO: can we recognize the refresh event and only refresh the changed resources?
         pullConfigMaps(properties, environment);
         pullSecrets(properties, environment);
 
         // After the first call, mark it as a refresh event.
-        isRefreshEvent.set(true);
+        isRefreshing.set(true);
     }
 
     private void pullConfigMaps(KubernetesConfigProperties properties, ConfigurableEnvironment environment) {
@@ -126,7 +121,6 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
                 .withName(cm.getName())
                 .get();
         if (configMap == null) {
-            markNotExistWhenPrepareEnvironment(resourceKey(cm, properties));
             log.warn(String.format(
                     "ConfigMap '%s' not found in namespace '%s'", cm.getName(), namespace(cm, properties)));
             return null;
@@ -144,7 +138,6 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
                 .withName(secret.getName())
                 .get();
         if (secretInK8s == null) {
-            markNotExistWhenPrepareEnvironment(resourceKey(secret, properties));
             log.warn(String.format(
                     "Secret '%s' not found in namespace '%s'", secret.getName(), namespace(secret, properties)));
             return null;
@@ -154,7 +147,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
 
     private static boolean noNeedToReloadResource(boolean refreshable) {
         // If this is a refresh event, we need to ignore the resource that not enabled auto refresh.
-        return isRefreshEvent.get() && !refreshable;
+        return isRefreshing.get() && !refreshable;
     }
 
     @Override
