@@ -5,17 +5,20 @@ import static com.freemanan.kubernetes.config.util.Exister.markNotExistWhenAppSt
 import static com.freemanan.kubernetes.config.util.KubernetesUtil.kubernetesClient;
 import static com.freemanan.kubernetes.config.util.Util.configMapKey;
 import static com.freemanan.kubernetes.config.util.Util.namespace;
+import static com.freemanan.kubernetes.config.util.Util.preference;
 import static com.freemanan.kubernetes.config.util.Util.refreshable;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
 import com.freemanan.kubernetes.config.util.Converter;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import org.apache.commons.logging.Log;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -25,7 +28,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
 /**
@@ -57,25 +59,30 @@ public class ConfigMapEnvironmentPostProcessor implements EnvironmentPostProcess
         KubernetesConfigProperties properties = Binder.get(environment)
                 .bind(KubernetesConfigProperties.PREFIX, KubernetesConfigProperties.class)
                 .get();
-        List<PropertySource<?>> remotePropertySources = properties.getConfigMaps().stream()
-                .map(cm -> propertySourceForConfigMap(cm, properties))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
         MutablePropertySources propertySources = environment.getPropertySources();
-        switch (properties.getPreference()) {
-            case LOCAL:
-                // The latter config should win the previous config
-                Collections.reverse(remotePropertySources);
-                remotePropertySources.forEach(propertySources::addLast);
-                break;
-            case REMOTE:
-                // we can't let it override the system environment properties
-                remotePropertySources.forEach(ps ->
-                        propertySources.addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, ps));
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown preference: " + properties.getPreference());
-        }
+
+        properties.getConfigMaps().stream()
+                .map(cm -> Optional.ofNullable(propertySourceForConfigMap(cm, properties))
+                        .map(ps -> Pair.of(preference(cm, properties), ps))
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .collect(groupingBy(Pair::getKey, mapping(Pair::getValue, toList())))
+                .forEach((configPreference, remotePropertySources) -> {
+                    switch (configPreference) {
+                        case LOCAL:
+                            // The latter config should win the previous config
+                            Collections.reverse(remotePropertySources);
+                            remotePropertySources.forEach(propertySources::addLast);
+                            break;
+                        case REMOTE:
+                            // we can't let it override the system environment properties
+                            remotePropertySources.forEach(ps -> propertySources.addAfter(
+                                    StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, ps));
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unknown preference: " + properties.getPreference());
+                    }
+                });
 
         // After the first call, mark it as a refresh event.
         isRefreshEvent.set(true);

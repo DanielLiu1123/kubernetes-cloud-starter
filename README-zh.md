@@ -54,3 +54,31 @@
     kubectl delete clusterrole configmap-cluster-reader
     kubectl delete clusterrolebinding configmap-cluster-reader-default-default
     ```
+
+### 主要特性
+
+- 动态更新配置
+
+  可以手动配置是否需要监听配置文件变化。
+
+- 配置优先级
+
+  通过配置选择优先使用本地配置还是远程配置。
+
+### 最佳实践
+
+一般一个应用程序的配置分为两类：
+
+- 基础配置
+
+    - 公有
+
+      可以通过配置中心或者公共 jar 包来管理，一般不会有动态更新的需求，比如 Tomcat 连接池参数、数据库连接池参数等。
+
+    - 私有
+
+      可以放在本地配置文件中，比如数据库连接信息，这类配置一般比较敏感，可以通过 Kubernetes Secret 来管理。
+
+- 业务配置
+
+  这类配置应该与业务强相关，但是需要用户自行判断是否需要放入配置中心，是否有动态更新的需求。

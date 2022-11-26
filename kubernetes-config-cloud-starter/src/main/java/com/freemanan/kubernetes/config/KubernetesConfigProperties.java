@@ -132,6 +132,10 @@ public class KubernetesConfigProperties {
          * Whether to enable the auto refresh on current ConfigMap, using {@link KubernetesConfigProperties#refreshEnabled} if not set.
          */
         private Boolean refreshEnabled;
+        /**
+         * Config preference, using {@link KubernetesConfigProperties#preference} if not set.
+         */
+        private ConfigPreference preference;
 
         public String getName() {
             return name;
@@ -157,12 +161,21 @@ public class KubernetesConfigProperties {
             this.refreshEnabled = refreshEnabled;
         }
 
+        public ConfigPreference getPreference() {
+            return preference;
+        }
+
+        public void setPreference(ConfigPreference preference) {
+            this.preference = preference;
+        }
+
         @Override
         public String toString() {
             return "ConfigMap{" + "name='"
                     + name + '\'' + ", namespace='"
                     + namespace + '\'' + ", refreshEnabled="
-                    + refreshEnabled + '}';
+                    + refreshEnabled + ", preference="
+                    + preference + '}';
         }
 
         @Override
@@ -172,12 +185,13 @@ public class KubernetesConfigProperties {
             ConfigMap configMap = (ConfigMap) o;
             return Objects.equals(name, configMap.name)
                     && Objects.equals(namespace, configMap.namespace)
-                    && Objects.equals(refreshEnabled, configMap.refreshEnabled);
+                    && Objects.equals(refreshEnabled, configMap.refreshEnabled)
+                    && preference == configMap.preference;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(name, namespace, refreshEnabled);
+            return Objects.hash(name, namespace, refreshEnabled, preference);
         }
     }
 

@@ -28,4 +28,9 @@ public final class Util {
             KubernetesConfigProperties.ConfigMap configMap, KubernetesConfigProperties properties) {
         return Optional.ofNullable(configMap.getRefreshEnabled()).orElseGet(properties::isRefreshEnabled);
     }
+
+    public static ConfigPreference preference(
+            KubernetesConfigProperties.ConfigMap configMap, KubernetesConfigProperties properties) {
+        return Optional.ofNullable(configMap.getPreference()).orElseGet(properties::getPreference);
+    }
 }
