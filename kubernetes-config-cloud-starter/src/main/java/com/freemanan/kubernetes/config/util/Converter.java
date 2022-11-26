@@ -71,6 +71,8 @@ public final class Converter {
      * @return the property source name
      */
     public static String propertySourceNameForConfigMap(ConfigMap configMap) {
-        return "configmap:" + configMap.getMetadata().getName();
+        return String.format(
+                "configmap:%s.%s",
+                configMap.getMetadata().getName(), configMap.getMetadata().getNamespace());
     }
 }
