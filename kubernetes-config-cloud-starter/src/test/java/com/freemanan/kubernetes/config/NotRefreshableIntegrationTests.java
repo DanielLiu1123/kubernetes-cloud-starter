@@ -18,25 +18,28 @@ import org.springframework.core.env.ConfigurableEnvironment;
 @KubernetesAvailable
 public class NotRefreshableIntegrationTests {
 
+    static ConfigurableApplicationContext ctx;
+
     @BeforeAll
     static void init() {
         createOrReplaceConfigMap("not_refreshable/configmap-01.yaml");
         createOrReplaceConfigMap("not_refreshable/configmap-02.yaml");
+
+        ctx = new SpringApplicationBuilder(Empty.class)
+                .profiles("not-refreshable")
+                .run();
     }
 
     @AfterAll
     static void recover() {
         deleteConfigMap("not_refreshable/configmap-01-changed.yaml");
         deleteConfigMap("not_refreshable/configmap-02-changed.yaml");
+
+        ctx.close();
     }
 
     @Test
     void testNotRefreshable() throws InterruptedException {
-        // start app
-        ConfigurableApplicationContext ctx = new SpringApplicationBuilder(Empty.class)
-                .profiles("not-refreshable")
-                .run();
-
         ConfigurableEnvironment env = ctx.getEnvironment();
         assertThat(env.getProperty("username")).isEqualTo("admin");
         assertThat(env.getProperty("password")).isEqualTo("666");
@@ -67,7 +70,5 @@ public class NotRefreshableIntegrationTests {
         assertThat(env.getProperty("hobbies[0]")).isEqualTo("reading");
         assertThat(env.getProperty("hobbies[1]")).isNotEqualTo("singing");
         assertThat(env.getProperty("hobbies[2]")).isNull();
-
-        ctx.close();
     }
 }

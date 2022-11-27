@@ -20,23 +20,26 @@ import org.springframework.core.env.ConfigurableEnvironment;
 @KubernetesAvailable
 public class SecretIntegrationTests {
 
+    static ConfigurableApplicationContext ctx;
+
     @BeforeAll
     static void init() {
         createOrReplaceConfigMap("secret/configmap.yaml");
         createOrReplaceSecret("secret/secret.yaml");
+
+        ctx = new SpringApplicationBuilder(Empty.class).profiles("secret").run();
     }
 
     @AfterAll
     static void recover() {
         deleteConfigMap("secret/configmap.yaml");
         deleteSecret("secret/secret.yaml");
+
+        ctx.close();
     }
 
     @Test
     void testSecret() {
-        ConfigurableApplicationContext ctx =
-                new SpringApplicationBuilder(Empty.class).profiles("secret").run();
-
         ConfigurableEnvironment env = ctx.getEnvironment();
         assertThat(env.getProperty("username")).isNotEqualTo("admin");
         assertThat(env.getProperty("password")).isNotEqualTo("cm9vdAo=");
@@ -47,7 +50,5 @@ public class SecretIntegrationTests {
         assertThat(env.getProperty("hobbies[0]")).isEqualTo("reading");
         assertThat(env.getProperty("hobbies[1]")).isEqualTo("writing");
         assertThat(env.getProperty("hobbies[2]")).isNull();
-
-        ctx.close();
     }
 }

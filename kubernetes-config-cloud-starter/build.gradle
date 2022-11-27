@@ -6,7 +6,7 @@ dependencies {
 
     api 'com.fasterxml.jackson.core:jackson-databind'
     api 'org.springframework.cloud:spring-cloud-starter'
-    api 'io.fabric8:kubernetes-client'
+    api "io.fabric8:kubernetes-client:${fabric8KubernetesClientVersion}"
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
