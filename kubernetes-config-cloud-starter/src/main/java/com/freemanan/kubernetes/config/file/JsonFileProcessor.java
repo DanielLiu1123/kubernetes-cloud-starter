@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ByteArrayResource;
 import org.yaml.snakeyaml.Yaml;
@@ -37,16 +36,38 @@ public class JsonFileProcessor implements FileProcessor {
     @Override
     @SuppressWarnings("rawtypes")
     public EnumerablePropertySource<?> generate(String name, String content) {
-        // If content is a json array, we just ignore it.
-        if (content.trim().startsWith("[")) {
-            return new MapPropertySource(name, new HashMap<>(1));
+        if (content.trim().startsWith("{")) {
+            // json object
+            return convertJsonObjectStringToPropertySource(name, content);
         }
+        CompositePropertySource result = new CompositePropertySource(name);
+        try {
+            List list = objectMapper.readValue(content, List.class);
+            if (list.isEmpty()) {
+                return result;
+            }
+            for (int i = 0; i < list.size(); i++) {
+                Object o = list.get(i);
+                if (o instanceof Map) {
+                    result.addPropertySource(convertJsonObjectStringToPropertySource(
+                            String.format("%s[%d]", name, i), objectMapper.writeValueAsString(o)));
+                }
+            }
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to parse json file", e);
+        }
+        return result;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static CompositePropertySource convertJsonObjectStringToPropertySource(
+            String name, String jsonObjectString) {
         // We don't want to change the Spring default behavior
         // this is how we convert json to PropertySource
         // json -> java.util.Map -> yaml -> PropertySource
         Map map = new HashMap<>();
         try {
-            map = objectMapper.readValue(content, Map.class);
+            map = objectMapper.readValue(jsonObjectString, Map.class);
         } catch (JsonProcessingException e) {
             log.warn("Failed to parse json file", e);
         }
