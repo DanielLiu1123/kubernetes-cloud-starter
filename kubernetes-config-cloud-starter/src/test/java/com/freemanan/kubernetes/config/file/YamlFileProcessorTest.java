@@ -15,7 +15,14 @@ class YamlFileProcessorTest {
      */
     @Test
     void generate_whenSingleDocument() {
-        String yaml = "username: admin\n" + "password: \"666\"\n" + "hobbies:\n" + "  - reading\n" + "  - writing";
+        // spotless:off
+        String yaml =
+                "username: admin\n" +
+                "password: \"666\"\n" +
+                "hobbies:\n" +
+                "  - reading\n" +
+                "  - writing";
+        // spotless:on
         EnumerablePropertySource<?> ps = new YamlFileProcessor().generate("test_generate", yaml);
         assertThat(ps.getPropertyNames()).hasSize(4);
         assertThat(ps.getProperty("username")).isEqualTo("admin");
@@ -29,16 +36,19 @@ class YamlFileProcessorTest {
      */
     @Test
     void generate_whenMultipleDocuments() {
-        String yaml = "username: admin\n" + "password: \"666\"\n"
-                + "hobbies:\n"
-                + "  - reading\n"
-                + "  - writing\n"
-                + "---\n"
-                + "username: adminn\n"
-                + "password: \"6666\"\n"
-                + "hobbies:\n"
-                + "  - readingg\n"
-                + "  - writingg\n";
+        // spotless:off
+        String yaml =
+                "username: admin\n" + "password: \"666\"\n" +
+                "hobbies:\n" +
+                "  - reading\n" +
+                "  - writing\n" +
+                "---\n" +
+                "username: adminn\n" +
+                "password: \"6666\"\n" +
+                "hobbies:\n" +
+                "  - readingg\n" +
+                "  - writingg\n";
+        // spotless:on
         EnumerablePropertySource<?> ps = new YamlFileProcessor().generate("test_generate", yaml);
         assertThat(ps.getPropertyNames()).hasSize(4);
         // first document 'win'

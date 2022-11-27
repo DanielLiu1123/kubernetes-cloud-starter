@@ -15,13 +15,17 @@ class JsonFileProcessorTest {
      */
     @Test
     void generate_whenJsonObject() {
-        String json = "{\n" + "  \"username\": \"admin\",\n"
-                + "  \"password\": \"666\",\n"
-                + "  \"hobbies\": [\n"
-                + "    \"reading\",\n"
-                + "    \"writing\"\n"
-                + "  ]\n"
-                + "}";
+        // spotless:off
+        String json =
+                "{\n" +
+                "  \"username\": \"admin\",\n" +
+                "  \"password\": \"666\",\n" +
+                "  \"hobbies\": [\n" +
+                "    \"reading\",\n" +
+                "    \"writing\"\n" +
+                "  ]\n" +
+                "}";
+        // spotless:on
         EnumerablePropertySource<?> ps = new JsonFileProcessor().generate("test_generate", json);
 
         assertThat(ps.getPropertyNames()).hasSize(4);
@@ -36,15 +40,19 @@ class JsonFileProcessorTest {
      */
     @Test
     void generate_whenJsonArray() {
-        String jsonArray = "[\n" + "  {\n"
-                + "    \"username\": \"admin\",\n"
-                + "    \"password\": \"666\",\n"
-                + "    \"hobbies\": [\n"
-                + "      \"reading\",\n"
-                + "      \"writing\"\n"
-                + "    ]\n"
-                + "  }\n"
-                + "]";
+        // spotless:off
+        String jsonArray =
+                "[\n" +
+                "  {\n" +
+                "    \"username\": \"admin\",\n" +
+                "    \"password\": \"666\",\n" +
+                "    \"hobbies\": [\n" +
+                "      \"reading\",\n" +
+                "      \"writing\"\n" +
+                "    ]\n" +
+                "  }\n" +
+                "]";
+        // spotless:on
         EnumerablePropertySource<?> ps = new JsonFileProcessor().generate("test_generate", jsonArray);
 
         assertThat(ps.getPropertyNames()).isEmpty();
