@@ -36,33 +36,14 @@ public class ConfigWatcher
     private final Map<ResourceKey, SharedIndexInformer<ConfigMap>> configmapInformers = new LinkedHashMap<>();
     private final Map<ResourceKey, SharedIndexInformer<Secret>> secretInformers = new LinkedHashMap<>();
     private final KubernetesConfigProperties properties;
+    private final KubernetesClient client;
 
     private ApplicationEventPublisher publisher;
     private ConfigurableEnvironment environment;
 
     public ConfigWatcher(KubernetesConfigProperties properties, KubernetesClient client) {
         this.properties = properties;
-        initInformersForEachRefreshableResources(properties, client);
-    }
-
-    private void initInformersForEachRefreshableResources(
-            KubernetesConfigProperties properties, KubernetesClient client) {
-        properties.getConfigMaps().stream()
-                .filter(cm -> refreshable(cm, properties))
-                .forEach(cm -> configmapInformers.put(
-                        resourceKey(cm, properties),
-                        client.configMaps()
-                                .inNamespace(namespace(cm, properties))
-                                .withName(cm.getName())
-                                .inform()));
-        properties.getSecrets().stream()
-                .filter(secret -> refreshable(secret, properties))
-                .forEach(secret -> secretInformers.put(
-                        resourceKey(secret, properties),
-                        client.secrets()
-                                .inNamespace(namespace(secret, properties))
-                                .withName(secret.getName())
-                                .inform()));
+        this.client = client;
     }
 
     @Override
@@ -80,8 +61,7 @@ public class ConfigWatcher
 
     @Override
     public void afterSingletonsInstantiated() {
-        watch(configmapInformers);
-        watch(secretInformers);
+        watchingRefreshableResources(properties, client);
     }
 
     @Override
@@ -91,9 +71,28 @@ public class ConfigWatcher
         log.info("ConfigMap and Secret informers closed");
     }
 
-    private <T extends HasMetadata> void watch(Map<ResourceKey, SharedIndexInformer<T>> informers) {
-        informers.forEach((resourceKey, informer) ->
-                informer.addEventHandler(new HasMetadataResourceEventHandler(publisher, environment, properties)));
+    private void watchingRefreshableResources(KubernetesConfigProperties properties, KubernetesClient client) {
+        properties.getConfigMaps().stream()
+                .filter(cm -> refreshable(cm, properties))
+                .forEach(cm -> configmapInformers.put(
+                        resourceKey(cm, properties),
+                        client.configMaps()
+                                .inNamespace(namespace(cm, properties))
+                                .withName(cm.getName())
+                                .inform(new HasMetadataResourceEventHandler<>(publisher, environment, properties))));
+        log(configmapInformers);
+        properties.getSecrets().stream()
+                .filter(secret -> refreshable(secret, properties))
+                .forEach(secret -> secretInformers.put(
+                        resourceKey(secret, properties),
+                        client.secrets()
+                                .inNamespace(namespace(secret, properties))
+                                .withName(secret.getName())
+                                .inform(new HasMetadataResourceEventHandler<>(publisher, environment, properties))));
+        log(secretInformers);
+    }
+
+    private <T extends HasMetadata> void log(Map<ResourceKey, SharedIndexInformer<T>> informers) {
         List<String> names = informers.keySet().stream()
                 .map(resourceKey -> String.join(".", resourceKey.getName(), resourceKey.getNamespace()))
                 .collect(Collectors.toList());

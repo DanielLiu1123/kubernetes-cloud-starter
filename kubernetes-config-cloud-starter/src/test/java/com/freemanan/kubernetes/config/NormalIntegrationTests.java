@@ -18,22 +18,24 @@ import org.springframework.core.env.ConfigurableEnvironment;
 @KubernetesAvailable
 public class NormalIntegrationTests {
 
+    static ConfigurableApplicationContext ctx;
+
     @BeforeAll
     static void init() {
         createOrReplaceConfigMap("normal/configmap.yaml");
+
+        ctx = new SpringApplicationBuilder(Empty.class).profiles("normal").run();
     }
 
     @AfterAll
     static void recover() {
         deleteConfigMap("normal/configmap-changed.yaml");
+
+        ctx.close();
     }
 
     @Test
     void testNormal() throws InterruptedException {
-        // start app
-        ConfigurableApplicationContext ctx =
-                new SpringApplicationBuilder(Empty.class).profiles("normal").run();
-
         ConfigurableEnvironment env = ctx.getEnvironment();
         assertThat(env.getProperty("username")).isEqualTo("admin");
         assertThat(env.getProperty("password")).isEqualTo("666");
@@ -64,7 +66,5 @@ public class NormalIntegrationTests {
         assertThat(env.getProperty("hobbies[0]")).isEqualTo("reading");
         assertThat(env.getProperty("hobbies[1]")).isEqualTo("writing");
         assertThat(env.getProperty("hobbies[2]")).isEqualTo("coding");
-
-        ctx.close();
     }
 }
