@@ -11,10 +11,10 @@
 
 1. 为 ServiceAccount 创建 Role 和 RoleBinding
     ```bash
-    # 为了示例我们创建了 ClusterRole，但其实你可以更加精细化地控制资源，只需要 ConfigMap 的 get,list,watch 权限
-    kubectl create clusterrole configmap-cluster-reader --verb=get,list,watch --resource=configmaps
+    # 为了示例我们创建了 ClusterRole，但其实你可以更加精细化地控制资源，只需要 ConfigMap/Secret 的 get,list,watch 权限
+    kubectl create clusterrole config-cluster-reader --verb=get,list,watch --resource=configmaps,secrets
     # 绑定 ClusterRole 到 ServiceAccount (namespace: default, name: default)
-    kubectl create clusterrolebinding configmap-cluster-reader-default-default --clusterrole configmap-cluster-reader --serviceaccount default:default
+    kubectl create clusterrolebinding config-cluster-reader-default-default --clusterrole config-cluster-reader --serviceaccount default:default
     ```
 
 2. 构建并启动
@@ -51,8 +51,8 @@
     # 删除上述操作创建的所有资源
     kubectl delete -f examples/kubernetes-config/deployment.yaml
     kubectl delete -f examples/kubernetes-config/configmap-example-01.yaml
-    kubectl delete clusterrole configmap-cluster-reader
-    kubectl delete clusterrolebinding configmap-cluster-reader-default-default
+    kubectl delete clusterrole config-cluster-reader
+    kubectl delete clusterrolebinding config-cluster-reader-default-default
     ```
 
 ### 主要特性

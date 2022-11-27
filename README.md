@@ -14,10 +14,10 @@ or [minikube](https://minikube.sigs.k8s.io/docs/) to create a cluster.
 
 1. Create Role and RoleBinding for ServiceAccount
     ```bash
-    # For example, we created a ClusterRole, but in fact, you can control resources more finely, only need the get,list,watch permissions of ConfigMap
-    kubectl create clusterrole configmap-cluster-reader --verb=get,list,watch --resource=configmaps
+    # For the example, we created a ClusterRole, but in fact, you can control resources more finely, only need the get,list,watch permissions of ConfigMap/Secret
+    kubectl create clusterrole config-cluster-reader --verb=get,list,watch --resource=configmaps,secrets
     # Bind ClusterRole to ServiceAccount (namespace: default, name: default)
-    kubectl create clusterrolebinding configmap-cluster-reader-default-default --clusterrole configmap-cluster-reader --serviceaccount default:default
+    kubectl create clusterrolebinding config-cluster-reader-default-default --clusterrole config-cluster-reader --serviceaccount default:default
     ```
 
 2. Build and Start
@@ -56,6 +56,6 @@ or [minikube](https://minikube.sigs.k8s.io/docs/) to create a cluster.
     # Delete all resources created by the above operations
     kubectl delete -f examples/kubernetes-config/deployment.yaml
     kubectl delete -f examples/kubernetes-config/configmap-example-01.yaml
-    kubectl delete clusterrole configmap-cluster-reader
-    kubectl delete clusterrolebinding configmap-cluster-reader-default-default
+    kubectl delete clusterrole config-cluster-reader
+    kubectl delete clusterrolebinding config-cluster-reader-default-default
     ```

@@ -11,6 +11,13 @@ microservice-base:
         - name: configmap-example-03
           namespace: ns-3
           refresh-enabled: false
+      secrets:
+        - name: secret-01
+        - name: secret-02
+          namespace: ns-2
+        - name: secret-03
+          namespace: ns-3
+          refresh-enabled: true
 logging:
   level:
     com.freemanan.kubernetes.config: debug
