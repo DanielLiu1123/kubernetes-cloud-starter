@@ -14,7 +14,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 /**
  * @author Freeman
  */
-public class HasMetadataResourceEventHandler implements ResourceEventHandler<HasMetadata> {
+public class HasMetadataResourceEventHandler<T extends HasMetadata> implements ResourceEventHandler<T> {
     private static final Logger log = LoggerFactory.getLogger(HasMetadataResourceEventHandler.class);
 
     private final ApplicationEventPublisher publisher;

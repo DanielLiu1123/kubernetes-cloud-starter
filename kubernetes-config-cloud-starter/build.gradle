@@ -4,6 +4,7 @@ dependencies {
     api platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
     compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
 
+    api 'com.fasterxml.jackson.core:jackson-databind'
     api 'org.springframework.cloud:spring-cloud-starter'
     api 'io.fabric8:kubernetes-client'
 
