@@ -13,9 +13,18 @@ def githubUrl = 'https://github.com/DanielLiu1123/kubernetes-cloud-starter'
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
             artifact sourcesJar
+            from components.java
 
+            // see  https://docs.gradle.org/current/userguide/publishing_maven.html
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
             pom {
                 name = 'Kubernetes Cloud Starter'
                 description = 'Kubernetes Cloud Starter'
@@ -38,16 +47,6 @@ publishing {
                     connection = "scm:git:git://${githubUrl.substring(8)}.git"
                     developerConnection = "scm:git:ssh@${githubUrl.substring(8)}.git"
                     url = "${githubUrl}"
-                }
-            }
-
-            // see https://stackoverflow.com/questions/61500897/gradle-springboot-mavenpublish-publication-only-contains-dependencies-and-or
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
                 }
             }
         }
