@@ -3,16 +3,13 @@ package com.freemanan.kubernetes.config.testsupport;
 import com.freemanan.kubernetes.config.util.KubernetesUtil;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.api.model.StatusDetails;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import java.io.IOException;
-import java.util.List;
 import org.springframework.core.io.ClassPathResource;
 
 /**
  * @author Freeman
  */
-@SuppressWarnings("unchecked")
 public class KubernetesTestUtil {
 
     static KubernetesClient cli = KubernetesUtil.newKubernetesClient();
@@ -41,15 +38,15 @@ public class KubernetesTestUtil {
         return cli.resource(configMap(classpathFile)).createOrReplace();
     }
 
-    public static List<StatusDetails> deleteConfigMap(String classpathFile) {
-        return cli.resource(configMap(classpathFile)).delete();
+    public static void deleteConfigMap(String classpathFile) {
+        cli.resource(configMap(classpathFile)).delete();
     }
 
     public static Secret createOrReplaceSecret(String classpathFile) {
         return cli.resource(secret(classpathFile)).createOrReplace();
     }
 
-    public static List<StatusDetails> deleteSecret(String classpathFile) {
-        return cli.resource(secret(classpathFile)).delete();
+    public static void deleteSecret(String classpathFile) {
+        cli.resource(secret(classpathFile)).delete();
     }
 }
