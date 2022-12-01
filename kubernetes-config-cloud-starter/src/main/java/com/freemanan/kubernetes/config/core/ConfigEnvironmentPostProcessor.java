@@ -1,7 +1,6 @@
 package com.freemanan.kubernetes.config.core;
 
 import static com.freemanan.kubernetes.config.util.Converter.toPropertySource;
-import static com.freemanan.kubernetes.config.util.KubernetesUtil.kubernetesClient;
 import static com.freemanan.kubernetes.config.util.Util.namespace;
 import static com.freemanan.kubernetes.config.util.Util.preference;
 import static com.freemanan.kubernetes.config.util.Util.refreshable;
@@ -11,6 +10,7 @@ import static java.util.stream.Collectors.toList;
 
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
 import com.freemanan.kubernetes.config.util.ConfigPreference;
+import com.freemanan.kubernetes.config.util.KubernetesClientHolder;
 import com.freemanan.kubernetes.config.util.Pair;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
@@ -45,7 +45,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
 
     public ConfigEnvironmentPostProcessor(DeferredLogFactory logFactory) {
         this.log = logFactory.getLog(getClass());
-        this.client = kubernetesClient();
+        this.client = KubernetesClientHolder.getKubernetesClient();
     }
 
     @Override

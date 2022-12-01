@@ -1,7 +1,7 @@
 package com.freemanan.kubernetes.config;
 
 import com.freemanan.kubernetes.config.core.ConfigWatcher;
-import com.freemanan.kubernetes.config.util.KubernetesUtil;
+import com.freemanan.kubernetes.config.util.KubernetesClientHolder;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -23,7 +23,7 @@ public class KubernetesConfigAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public KubernetesClient fabric8KubernetesClient() {
-        return KubernetesUtil.kubernetesClient();
+        return KubernetesClientHolder.getKubernetesClient();
     }
 
     @Bean
