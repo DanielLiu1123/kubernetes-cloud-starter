@@ -5,11 +5,11 @@ import static com.freemanan.kubernetes.config.util.Util.refreshable;
 import static com.freemanan.kubernetes.config.util.Util.resourceKey;
 
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
-import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.Watch;
+import io.fabric8.kubernetes.client.Watcher;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +33,8 @@ public class ConfigWatcher
         implements SmartInitializingSingleton, ApplicationEventPublisherAware, EnvironmentAware, DisposableBean {
     private static final Logger log = LoggerFactory.getLogger(ConfigWatcher.class);
 
-    private final Map<ResourceKey, SharedIndexInformer<ConfigMap>> configmapInformers = new LinkedHashMap<>();
-    private final Map<ResourceKey, SharedIndexInformer<Secret>> secretInformers = new LinkedHashMap<>();
+    private final Map<ResourceKey, Watch> configmapWatchers = new LinkedHashMap<>();
+    private final Map<ResourceKey, Watch> secretWatchers = new LinkedHashMap<>();
     private final KubernetesConfigProperties properties;
     private final KubernetesClient client;
 
@@ -61,46 +61,85 @@ public class ConfigWatcher
 
     @Override
     public void afterSingletonsInstantiated() {
-        watchingRefreshableResources(properties, client);
+        watchingRefreshableResources(properties);
     }
 
     @Override
     public void destroy() {
-        configmapInformers.values().forEach(SharedIndexInformer::close);
-        secretInformers.values().forEach(SharedIndexInformer::close);
-        log.info("ConfigMap and Secret informers closed");
+        configmapWatchers.values().forEach(Watch::close);
+        secretWatchers.values().forEach(Watch::close);
+        log.info("ConfigMap and Secret watchers closed");
     }
 
-    private void watchingRefreshableResources(KubernetesConfigProperties properties, KubernetesClient client) {
+    private void watchingRefreshableResources(KubernetesConfigProperties properties) {
         properties.getConfigMaps().stream()
                 .filter(cm -> refreshable(cm, properties))
-                .forEach(cm -> configmapInformers.put(
-                        resourceKey(cm, properties),
-                        client.configMaps()
-                                .inNamespace(namespace(cm, properties))
-                                .withName(cm.getName())
-                                .inform(new HasMetadataResourceEventHandler<>(publisher, environment, properties))));
-        log(configmapInformers);
+                .forEach(cm -> configmapWatchers.put(
+                        resourceKey(cm, properties), configmapWatcher(namespace(cm, properties), cm.getName())));
+        log(configmapWatchers);
+
         properties.getSecrets().stream()
                 .filter(secret -> refreshable(secret, properties))
-                .forEach(secret -> secretInformers.put(
+                .forEach(secret -> secretWatchers.put(
                         resourceKey(secret, properties),
-                        client.secrets()
-                                .inNamespace(namespace(secret, properties))
-                                .withName(secret.getName())
-                                .inform(new HasMetadataResourceEventHandler<>(publisher, environment, properties))));
-        log(secretInformers);
+                        secretWatcher(namespace(secret, properties), secret.getName())));
+        log(secretWatchers);
     }
 
-    private <T extends HasMetadata> void log(Map<ResourceKey, SharedIndexInformer<T>> informers) {
-        List<String> names = informers.keySet().stream()
+    private Watch configmapWatcher(String namespace, String name) {
+        return client.configMaps()
+                .inNamespace(namespace)
+                .withName(name)
+                .watch(new HasMetadataWatcher<>(
+                        new HasMetadataResourceEventHandler<>(publisher, environment, properties)));
+    }
+
+    private Watch secretWatcher(String namespace, String name) {
+        return client.secrets()
+                .inNamespace(namespace)
+                .withName(name)
+                .watch(new HasMetadataWatcher<>(
+                        new HasMetadataResourceEventHandler<>(publisher, environment, properties)));
+    }
+
+    private void log(Map<ResourceKey, Watch> watchers) {
+        List<String> names = watchers.keySet().stream()
                 .map(resourceKey -> String.join(".", resourceKey.getName(), resourceKey.getNamespace()))
                 .collect(Collectors.toList());
         if (!names.isEmpty() && log.isInfoEnabled()) {
             log.info(
                     "Start watching {}s: {}",
-                    informers.keySet().iterator().next().getType(),
+                    watchers.keySet().iterator().next().getType(),
                     names);
         }
+    }
+
+    private static class HasMetadataWatcher<T extends HasMetadata> implements Watcher<T> {
+
+        private final HasMetadataResourceEventHandler<T> handler;
+
+        private HasMetadataWatcher(HasMetadataResourceEventHandler<T> handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public void eventReceived(Action action, T resource) {
+            switch (action) {
+                case ADDED:
+                    handler.onAdd(resource);
+                    break;
+                case MODIFIED:
+                    handler.onUpdate(null, resource);
+                    break;
+                case DELETED:
+                    handler.onDelete(resource, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        public void onClose(KubernetesClientException cause) {}
     }
 }
