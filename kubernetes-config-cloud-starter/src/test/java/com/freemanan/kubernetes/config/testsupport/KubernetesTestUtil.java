@@ -15,7 +15,7 @@ import org.springframework.core.io.ClassPathResource;
 @SuppressWarnings("unchecked")
 public class KubernetesTestUtil {
 
-    static KubernetesClient cli = KubernetesUtil.kubernetesClient();
+    static KubernetesClient cli = KubernetesUtil.newKubernetesClient();
 
     public static ConfigMap configMap(String classpathFile) {
         try {
