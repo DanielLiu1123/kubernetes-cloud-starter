@@ -41,7 +41,7 @@ public final class Converter {
             Map<String, Object> pairProperties = singlePairPropertySources.stream()
                     .map(SinglePairPropertySource::getSinglePair)
                     .collect(Collectors.toMap(
-                            Pair::getKey, Pair::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new));
+                            Pair::key, Pair::value, (oldValue, newValue) -> newValue, LinkedHashMap::new));
             compositePropertySource.addPropertySource(
                     new MapPropertySource(propertySourceName + "[pair]", pairProperties));
         }

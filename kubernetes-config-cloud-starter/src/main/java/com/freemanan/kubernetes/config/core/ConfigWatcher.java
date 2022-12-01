@@ -94,12 +94,12 @@ public class ConfigWatcher
 
     private <T extends HasMetadata> void log(Map<ResourceKey, SharedIndexInformer<T>> informers) {
         List<String> names = informers.keySet().stream()
-                .map(resourceKey -> String.join(".", resourceKey.getName(), resourceKey.getNamespace()))
+                .map(resourceKey -> String.join(".", resourceKey.name(), resourceKey.namespace()))
                 .collect(Collectors.toList());
         if (!names.isEmpty() && log.isInfoEnabled()) {
             log.info(
                     "Start watching {}s: {}",
-                    informers.keySet().iterator().next().getType(),
+                    informers.keySet().iterator().next().type(),
                     names);
         }
     }

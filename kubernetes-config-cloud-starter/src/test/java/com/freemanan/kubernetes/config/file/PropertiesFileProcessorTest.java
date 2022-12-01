@@ -15,13 +15,13 @@ class PropertiesFileProcessorTest {
      */
     @Test
     void generate() {
-        // spotless:off
         String properties =
-                "username=admin\n" +
-                "password=666\n" +
-                "hobbies[0]=reading\n" +
-                "hobbies[1]=writing";
-        // spotless:on
+                """
+                username=admin
+                password=666
+                hobbies[0]=reading
+                hobbies[1]=writing
+                """;
         EnumerablePropertySource<?> ps = new PropertiesFileProcessor().generate("test_generate", properties);
 
         assertThat(ps.getPropertyNames()).hasSize(4);

@@ -15,17 +15,17 @@ class JsonFileProcessorTest {
      */
     @Test
     void generate_whenJsonObject() {
-        // spotless:off
         String json =
-                "{\n" +
-                "  \"username\": \"admin\",\n" +
-                "  \"password\": \"666\",\n" +
-                "  \"hobbies\": [\n" +
-                "    \"reading\",\n" +
-                "    \"writing\"\n" +
-                "  ]\n" +
-                "}";
-        // spotless:on
+                """
+                {
+                  "username": "admin",
+                  "password": "666",
+                  "hobbies": [
+                    "reading",
+                    "writing"
+                  ]
+                }
+                """;
         EnumerablePropertySource<?> ps = new JsonFileProcessor().generate("test_generate", json);
 
         assertThat(ps.getPropertyNames()).hasSize(4);
@@ -40,28 +40,28 @@ class JsonFileProcessorTest {
      */
     @Test
     void generate_whenJsonArray() {
-        // spotless:off
         String jsonArray =
-                "[\n" +
-                "  {\n" +
-                "    \"username\": \"admin\",\n" +
-                "    \"password\": \"666\",\n" +
-                "    \"hobbies\": [\n" +
-                "      \"reading\",\n" +
-                "      \"writing\"\n" +
-                "    ]\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"username\": \"root\",\n" +
-                "    \"password\": \"888\",\n" +
-                "    \"hobbies\": [\n" +
-                "      \"reading\",\n" +
-                "      \"writing\",\n" +
-                "      \"coding\"\n" +
-                "    ]\n" +
-                "  }\n" +
-                "]";
-        // spotless:on
+                """
+                [
+                  {
+                    "username": "admin",
+                    "password": "666",
+                    "hobbies": [
+                      "reading",
+                      "writing"
+                    ]
+                  },
+                  {
+                    "username": "root",
+                    "password": "888",
+                    "hobbies": [
+                      "reading",
+                      "writing",
+                      "coding"
+                    ]
+                  }
+                ]
+                """;
         EnumerablePropertySource<?> ps = new JsonFileProcessor().generate("test_generate", jsonArray);
 
         // previous config wins

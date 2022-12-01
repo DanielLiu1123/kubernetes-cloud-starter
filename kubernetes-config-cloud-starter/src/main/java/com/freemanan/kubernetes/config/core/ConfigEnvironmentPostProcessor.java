@@ -79,7 +79,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
                         .map(ps -> Pair.of(preference(configmap, properties), ps))
                         .orElse(null))
                 .filter(Objects::nonNull)
-                .collect(groupingBy(Pair::getKey, mapping(Pair::getValue, toList())))
+                .collect(groupingBy(Pair::key, mapping(Pair::value, toList())))
                 .forEach((configPreference, remotePropertySources) -> {
                     addPropertySourcesToEnvironment(environment, configPreference, remotePropertySources);
                 });
@@ -91,7 +91,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
                         .map(ps -> Pair.of(preference(secret, properties), ps))
                         .orElse(null))
                 .filter(Objects::nonNull)
-                .collect(groupingBy(Pair::getKey, mapping(Pair::getValue, toList())))
+                .collect(groupingBy(Pair::key, mapping(Pair::value, toList())))
                 .forEach((configPreference, remotePropertySources) -> {
                     addPropertySourcesToEnvironment(environment, configPreference, remotePropertySources);
                 });
@@ -103,18 +103,16 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
             List<EnumerablePropertySource<T>> remotePropertySources) {
         MutablePropertySources propertySources = environment.getPropertySources();
         switch (configPreference) {
-            case LOCAL:
+            case LOCAL -> {
                 // The latter config should win the previous config
                 Collections.reverse(remotePropertySources);
                 remotePropertySources.forEach(propertySources::addLast);
-                break;
-            case REMOTE:
-                // we can't let it override the system environment properties
-                remotePropertySources.forEach(ps ->
-                        propertySources.addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, ps));
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown config preference: " + configPreference.name());
+            }
+            case REMOTE ->
+            // we can't let it override the system environment properties
+            remotePropertySources.forEach(
+                    ps -> propertySources.addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, ps));
+            default -> throw new IllegalArgumentException("Unknown config preference: " + configPreference.name());
         }
     }
 
