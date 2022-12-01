@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MapPropertySource;
-import org.springframework.util.StringUtils;
 
 /**
  * @author Freeman
@@ -79,8 +78,8 @@ public final class Converter {
         // data is base64 encoded
         Map<String, String> data = secret.getData();
         Map<String, Object> encodedValue = new LinkedHashMap<>(data);
-        data.replaceAll((key, value) -> StringUtils.trimTrailingWhitespace(
-                new String(Base64.getDecoder().decode(value), UTF_8))); // it will add newlines automatically
+        data.replaceAll((key, value) -> new String(Base64.getDecoder().decode(value), UTF_8)
+                .stripTrailing()); // secret will add newlines automatically
         Map<String, String> decodedValue = new LinkedHashMap<>(data);
         CompositePropertySource result = new CompositePropertySource(propertySourceNameForResource(secret));
         result.addPropertySource(toPropertySource(propertySourceNameForResource(secret) + "[decoded]", decodedValue));
