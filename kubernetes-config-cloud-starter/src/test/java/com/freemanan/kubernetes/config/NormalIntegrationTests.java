@@ -3,40 +3,40 @@ package com.freemanan.kubernetes.config;
 import static com.freemanan.kubernetes.config.testsupport.KubernetesTestUtil.createOrReplaceConfigMap;
 import static com.freemanan.kubernetes.config.testsupport.KubernetesTestUtil.deleteConfigMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 import com.freemanan.kubernetes.config.testsupport.KubernetesAvailable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * @author Freeman
  */
 @KubernetesAvailable
+@SpringBootTest(classes = Empty.class, webEnvironment = NONE)
+@ActiveProfiles("normal")
 public class NormalIntegrationTests {
-
-    static ConfigurableApplicationContext ctx;
 
     @BeforeAll
     static void init() {
         createOrReplaceConfigMap("normal/configmap.yaml");
-
-        ctx = new SpringApplicationBuilder(Empty.class).profiles("normal").run();
     }
 
     @AfterAll
     static void recover() {
         deleteConfigMap("normal/configmap-changed.yaml");
-
-        ctx.close();
     }
+
+    @Autowired
+    private Environment env;
 
     @Test
     void testNormal() throws InterruptedException {
-        ConfigurableEnvironment env = ctx.getEnvironment();
         assertThat(env.getProperty("username")).isEqualTo("admin");
         assertThat(env.getProperty("password")).isEqualTo("666");
         assertThat(env.getProperty("hobbies[0]")).isEqualTo("reading");

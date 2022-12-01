@@ -16,8 +16,6 @@ public final class KubernetesUtil {
 
     private static final Config config = new ConfigBuilder().build();
 
-    private static final KubernetesClient client = new DefaultKubernetesClient(config);
-
     public static Config config() {
         return config;
     }
@@ -26,7 +24,12 @@ public final class KubernetesUtil {
         return config.getNamespace();
     }
 
-    public static KubernetesClient kubernetesClient() {
-        return client;
+    /**
+     * New a KubernetesClient instance.
+     *
+     * @return new KubernetesClient instance
+     */
+    public static KubernetesClient newKubernetesClient() {
+        return new DefaultKubernetesClient(config);
     }
 }
