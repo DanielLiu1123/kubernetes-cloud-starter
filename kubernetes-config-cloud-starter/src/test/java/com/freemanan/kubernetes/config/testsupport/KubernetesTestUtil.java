@@ -10,7 +10,6 @@ import org.springframework.core.io.ClassPathResource;
 /**
  * @author Freeman
  */
-@SuppressWarnings("unchecked")
 public class KubernetesTestUtil {
 
     static KubernetesClient cli = KubernetesUtil.newKubernetesClient();
@@ -39,15 +38,15 @@ public class KubernetesTestUtil {
         return cli.resource(configMap(classpathFile)).createOrReplace();
     }
 
-    public static Boolean deleteConfigMap(String classpathFile) {
-        return cli.resource(configMap(classpathFile)).delete();
+    public static void deleteConfigMap(String classpathFile) {
+        cli.resource(configMap(classpathFile)).delete();
     }
 
     public static Secret createOrReplaceSecret(String classpathFile) {
         return cli.resource(secret(classpathFile)).createOrReplace();
     }
 
-    public static Boolean deleteSecret(String classpathFile) {
-        return cli.resource(secret(classpathFile)).delete();
+    public static void deleteSecret(String classpathFile) {
+        cli.resource(secret(classpathFile)).delete();
     }
 }
