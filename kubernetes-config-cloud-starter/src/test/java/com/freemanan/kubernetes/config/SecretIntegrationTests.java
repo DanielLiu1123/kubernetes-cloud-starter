@@ -5,42 +5,42 @@ import static com.freemanan.kubernetes.config.testsupport.KubernetesTestUtil.cre
 import static com.freemanan.kubernetes.config.testsupport.KubernetesTestUtil.deleteConfigMap;
 import static com.freemanan.kubernetes.config.testsupport.KubernetesTestUtil.deleteSecret;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 import com.freemanan.kubernetes.config.testsupport.KubernetesAvailable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * @author Freeman
  */
 @KubernetesAvailable
+@SpringBootTest(classes = Empty.class, webEnvironment = NONE)
+@ActiveProfiles("secret")
 public class SecretIntegrationTests {
-
-    static ConfigurableApplicationContext ctx;
 
     @BeforeAll
     static void init() {
         createOrReplaceConfigMap("secret/configmap.yaml");
         createOrReplaceSecret("secret/secret.yaml");
-
-        ctx = new SpringApplicationBuilder(Empty.class).profiles("secret").run();
     }
 
     @AfterAll
     static void recover() {
         deleteConfigMap("secret/configmap.yaml");
         deleteSecret("secret/secret.yaml");
-
-        ctx.close();
     }
+
+    @Autowired
+    private Environment env;
 
     @Test
     void testSecret() {
-        ConfigurableEnvironment env = ctx.getEnvironment();
         assertThat(env.getProperty("username")).isNotEqualTo("admin");
         assertThat(env.getProperty("password")).isNotEqualTo("cm9vdAo=");
         assertThat(env.getProperty("username")).isEqualTo("root"); // cm9vdAo=
