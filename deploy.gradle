@@ -3,6 +3,8 @@ apply plugin: 'signing'
 
 version = System.getenv('RELEASE') ? version.substring(0, version.lastIndexOf('-SNAPSHOT')) : version
 
+def isRelease = !version.endsWith('-SNAPSHOT') && System.getProperty('signing.gnupg.keyName')
+
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
     archiveClassifier.set('sources')
@@ -66,7 +68,7 @@ publishing {
     }
 
     tasks.withType(Sign) {
-        onlyIf { !version.endsWith('-SNAPSHOT') }
+        onlyIf { isRelease }
     }
 
     signing {
