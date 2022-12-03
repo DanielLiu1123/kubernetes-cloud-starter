@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
+import com.freemanan.kubernetes.config.util.ApplicationContextHolder;
 import com.freemanan.kubernetes.config.util.ConfigPreference;
 import com.freemanan.kubernetes.config.util.KubernetesClientHolder;
 import com.freemanan.kubernetes.config.util.Pair;
@@ -16,12 +17,9 @@ import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.logging.Log;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -37,14 +35,6 @@ import org.springframework.core.env.StandardEnvironment;
  * @author Freeman
  */
 public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
-    /**
-     * If this is not the first call, we consider it as a refresh event.
-     * <p> Note: there are multiple applications in the same JVM when running tests, so we need to mark the application.
-     */
-    private static final Map</*app hashcode*/ Integer, Boolean> isRefreshingMap = new HashMap<>();
-
-    private static final AtomicReference<SpringApplication> currentApplication = new AtomicReference<>();
-
     private final Log log;
     private final KubernetesClient client;
 
@@ -55,22 +45,24 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        currentApplication.set(application);
         Boolean enabled = environment.getProperty(KubernetesConfigProperties.PREFIX + ".enabled", Boolean.class, true);
         if (!enabled) {
             return;
         }
-        KubernetesConfigProperties properties = Binder.get(environment)
-                .bind(KubernetesConfigProperties.PREFIX, KubernetesConfigProperties.class)
-                .get();
+
+        KubernetesConfigProperties properties = getKubernetesConfigProperties(environment);
 
         // TODO: can we recognize the refresh event and only refresh the changed resources?
         pullConfigMaps(properties, environment);
         pullSecrets(properties, environment);
+    }
 
-        // After the first call, mark it as a refresh event.
-        isRefreshingMap.put(System.identityHashCode(application), true);
-        currentApplication.set(null);
+    private static KubernetesConfigProperties getKubernetesConfigProperties(ConfigurableEnvironment environment) {
+        return Optional.ofNullable(ApplicationContextHolder.get())
+                .map(context -> context.getBean(KubernetesConfigProperties.class))
+                .orElse(Binder.get(environment)
+                        .bind(KubernetesConfigProperties.PREFIX, KubernetesConfigProperties.class)
+                        .get());
     }
 
     private void pullConfigMaps(KubernetesConfigProperties properties, ConfigurableEnvironment environment) {
@@ -152,7 +144,11 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
 
     private static boolean noNeedToReloadResource(boolean refreshable) {
         // If this is a refresh event, we need to ignore the resource that not enabled auto refresh.
-        return isRefreshingMap.getOrDefault(System.identityHashCode(currentApplication.get()), false) && !refreshable;
+        return isRefreshing() && !refreshable;
+    }
+
+    private static boolean isRefreshing() {
+        return ApplicationContextHolder.get() != null;
     }
 
     @Override

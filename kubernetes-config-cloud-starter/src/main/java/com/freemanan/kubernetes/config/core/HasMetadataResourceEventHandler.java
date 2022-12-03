@@ -3,12 +3,13 @@ package com.freemanan.kubernetes.config.core;
 import static com.freemanan.kubernetes.config.util.Converter.propertySourceNameForResource;
 
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
+import com.freemanan.kubernetes.config.util.ApplicationContextHolder;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.endpoint.event.RefreshEvent;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
@@ -17,15 +18,13 @@ import org.springframework.core.env.ConfigurableEnvironment;
 public class HasMetadataResourceEventHandler<T extends HasMetadata> implements ResourceEventHandler<T> {
     private static final Logger log = LoggerFactory.getLogger(HasMetadataResourceEventHandler.class);
 
-    private final ApplicationEventPublisher publisher;
+    private final ApplicationContext context;
     private final ConfigurableEnvironment environment;
     private final KubernetesConfigProperties properties;
 
     public HasMetadataResourceEventHandler(
-            ApplicationEventPublisher publisher,
-            ConfigurableEnvironment environment,
-            KubernetesConfigProperties properties) {
-        this.publisher = publisher;
+            ApplicationContext context, ConfigurableEnvironment environment, KubernetesConfigProperties properties) {
+        this.context = context;
         this.environment = environment;
         this.properties = properties;
     }
@@ -80,6 +79,12 @@ public class HasMetadataResourceEventHandler<T extends HasMetadata> implements R
     }
 
     private void refresh(HasMetadata obj) {
-        publisher.publishEvent(new RefreshEvent(obj, null, String.format("%s changed", obj.getKind())));
+        // This event may be executed asynchronously, so it cannot be bound to a thread
+        ApplicationContextHolder.set(context);
+        try {
+            context.publishEvent(new RefreshEvent(obj, null, String.format("%s changed", obj.getKind())));
+        } finally {
+            ApplicationContextHolder.remove();
+        }
     }
 }
