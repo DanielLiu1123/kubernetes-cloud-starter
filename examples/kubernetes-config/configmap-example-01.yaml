@@ -8,3 +8,6 @@ data:
     fm:
       pricing:
         price: 200
+    logging:
+      level:
+        com.freemanan.example.controller: info

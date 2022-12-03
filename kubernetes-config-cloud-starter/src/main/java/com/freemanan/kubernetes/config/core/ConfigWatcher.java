@@ -16,10 +16,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartInitializingSingleton;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
@@ -30,7 +31,7 @@ import org.springframework.core.env.Environment;
  * @author Freeman
  */
 public class ConfigWatcher
-        implements SmartInitializingSingleton, ApplicationEventPublisherAware, EnvironmentAware, DisposableBean {
+        implements SmartInitializingSingleton, ApplicationContextAware, EnvironmentAware, DisposableBean {
     private static final Logger log = LoggerFactory.getLogger(ConfigWatcher.class);
 
     private final Map<ResourceKey, Watch> configmapWatchers = new LinkedHashMap<>();
@@ -38,7 +39,7 @@ public class ConfigWatcher
     private final KubernetesConfigProperties properties;
     private final KubernetesClient client;
 
-    private ApplicationEventPublisher publisher;
+    private ApplicationContext context;
     private ConfigurableEnvironment environment;
 
     public ConfigWatcher(KubernetesConfigProperties properties, KubernetesClient client) {
@@ -55,8 +56,8 @@ public class ConfigWatcher
     }
 
     @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.publisher = applicationEventPublisher;
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
     }
 
     @Override
@@ -91,7 +92,7 @@ public class ConfigWatcher
                 .inNamespace(namespace)
                 .withName(name)
                 .watch(new HasMetadataWatcher<>(
-                        new HasMetadataResourceEventHandler<>(publisher, environment, properties)));
+                        new HasMetadataResourceEventHandler<>(context, environment, properties)));
     }
 
     private Watch secretWatcher(String namespace, String name) {
@@ -99,7 +100,7 @@ public class ConfigWatcher
                 .inNamespace(namespace)
                 .withName(name)
                 .watch(new HasMetadataWatcher<>(
-                        new HasMetadataResourceEventHandler<>(publisher, environment, properties)));
+                        new HasMetadataResourceEventHandler<>(context, environment, properties)));
     }
 
     private void log(Map<ResourceKey, Watch> watchers) {
