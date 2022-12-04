@@ -8,12 +8,16 @@
 
 [English](./README.md) | [中文](./README-zh-CN.md)
 
-## kubernetes-config-cloud-starter
+## Modules
 
-The main purpose of this module is to use Kubernetes ConfigMap/Secret as a distributed configuration center to achieve
-dynamic configuration updates without restarting the application.
+- [kubernetes-config-cloud-starter](#kubernetes-config-cloud-starter)
 
-### Usage
+  The main purpose of this module is to use Kubernetes ConfigMap/Secret as a distributed configuration center to achieve
+  dynamic configuration updates without restarting the application.
+
+### kubernetes-config-cloud-starter
+
+#### Usage
 
 Maven users:
 
@@ -32,7 +36,7 @@ Gradle users:
 implementation 'com.freemanan:kubernetes-config-cloud-starter:3.0.0-SNAPSHOT'
 ```
 
-### Quick Start
+#### Quick Start
 
 First you need a Kubernetes cluster, you can use [docker-desktop](https://www.docker.com/products/docker-desktop/)
 or [minikube](https://minikube.sigs.k8s.io/docs/) to create a cluster.
@@ -92,7 +96,7 @@ or [minikube](https://minikube.sigs.k8s.io/docs/) to create a cluster.
     kubectl delete clusterrolebinding config-cluster-reader-default-default
     ```
 
-### Main Features
+#### Main Features
 
 - Dynamic update configuration（ConfigMap/Secret）
 
@@ -106,20 +110,7 @@ or [minikube](https://minikube.sigs.k8s.io/docs/) to create a cluster.
 
   Supports configuration files in `yaml`, `properties`, `json` and key-value pair.
 
-### Versions
-
-Mainly maintains versions: `3.0.x`, `2.6.x`, `2.4.x`
-
-| Branch | Support Spring Boot Version | Latest Version  |
-|:------:|:---------------------------:|:---------------:|
-|  main  |            3.0.x            | not release yet |
-| 2.6.x  |       [2.6.0, 3.0.0)        |      2.6.1      |
-| 2.4.x  |       [2.4.0, 2.6.0)        |      2.4.1      |
-
-Choose the corresponding version according to the version of Spring Boot you are using. For example, if you are using
-Spring Boot 2.4.x, then you can use any version of the 2.4.x branch, but please try to use the latest version.
-
-### Best Practices
+#### Best Practices
 
 Spring Cloud provides the capability of dynamically refreshing the Environment at runtime, which mainly dynamically
 updates the properties of two types of beans:
@@ -148,3 +139,16 @@ In general, the configuration of an application falls into two categories:
   This type of configuration should be strongly related to the business logic, but users need to judge whether they need
   to be
   placed in the configuration center and whether there is a need for dynamic updates.
+
+## Versions
+
+Mainly maintains versions: `3.0.x`, `2.6.x`, `2.4.x`
+
+| Branch | Support Spring Boot Version | Latest Version  |
+|:------:|:---------------------------:|:---------------:|
+|  main  |            3.0.x            | not release yet |
+| 2.6.x  |       [2.6.0, 3.0.0)        |      2.6.1      |
+| 2.4.x  |       [2.4.0, 2.6.0)        |      2.4.1      |
+
+Choose the corresponding version according to the version of Spring Boot you are using. For example, if you are using
+Spring Boot 2.4.x, then you can use any version of the 2.4.x branch, but please try to use the latest version.
