@@ -1,4 +1,4 @@
-FROM amazoncorretto:8
+FROM amazoncorretto:17
 
 COPY examples/kubernetes-config/build/libs/*.jar /app.jar
 
