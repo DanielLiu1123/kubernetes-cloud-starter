@@ -54,7 +54,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
         KubernetesConfigProperties properties = getKubernetesConfigProperties(environment);
 
         if (isRefreshing()) {
-            RefreshEvent event = RefreshContext.get().getRefreshEvent();
+            RefreshEvent event = RefreshContext.get().refreshEvent();
             Object resource = event.getSource();
             if (resource instanceof ConfigMap) {
                 pullConfigMaps(properties, environment);
@@ -71,7 +71,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
 
     private static KubernetesConfigProperties getKubernetesConfigProperties(ConfigurableEnvironment environment) {
         return Optional.ofNullable(RefreshContext.get())
-                .map(context -> context.getApplicationContext().getBean(KubernetesConfigProperties.class))
+                .map(context -> context.applicationContext().getBean(KubernetesConfigProperties.class))
                 .orElse(Binder.get(environment)
                         .bind(KubernetesConfigProperties.PREFIX, KubernetesConfigProperties.class)
                         .get());

@@ -8,24 +8,8 @@ import org.springframework.context.ApplicationContext;
  *
  * @author Freeman
  */
-public class RefreshContext {
+public record RefreshContext(ApplicationContext applicationContext, RefreshEvent refreshEvent) {
     private static final ThreadLocal<RefreshContext> holder = new ThreadLocal<>();
-
-    private final ApplicationContext applicationContext;
-    private final RefreshEvent refreshEvent;
-
-    public RefreshContext(ApplicationContext applicationContext, RefreshEvent refreshEvent) {
-        this.applicationContext = applicationContext;
-        this.refreshEvent = refreshEvent;
-    }
-
-    public ApplicationContext getApplicationContext() {
-        return applicationContext;
-    }
-
-    public RefreshEvent getRefreshEvent() {
-        return refreshEvent;
-    }
 
     public static void set(RefreshContext refreshContext) {
         holder.set(refreshContext);
