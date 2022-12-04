@@ -8,15 +8,20 @@
 
 [English](./README.md) | [中文](./README-zh-CN.md)
 
-## kubernetes-config-cloud-starter
+## Modules
 
-这个模块的主要目的是使用 Kubernetes 的 ConfigMap/Secret 作为分布式配置中心，在不重启应用的情况下实现配置的动态更新。
+- [kubernetes-config-cloud-starter](#kubernetes-config-cloud-starter)
 
-### Usage
+  这个模块的主要目的是使用 Kubernetes 的 ConfigMap/Secret 作为分布式配置中心，在不重启应用的情况下实现配置的动态更新。
+
+### kubernetes-config-cloud-starter
+
+#### Usage
 
 Maven 用户:
 
 ```xml
+
 <dependency>
     <groupId>com.freemanan</groupId>
     <artifactId>kubernetes-config-cloud-starter</artifactId>
@@ -30,7 +35,7 @@ Gradle 用户:
 implementation 'com.freemanan:kubernetes-config-cloud-starter:2.4.1'
 ```
 
-### Quick Start
+#### Quick Start
 
 首先你需要一个 Kubernetes 集群，你可以使用 [docker-desktop](https://www.docker.com/products/docker-desktop/)
 或者 [minikube](https://minikube.sigs.k8s.io/docs/) 来创建一个集群。
@@ -88,7 +93,7 @@ implementation 'com.freemanan:kubernetes-config-cloud-starter:2.4.1'
     kubectl delete clusterrolebinding config-cluster-reader-default-default
     ```
 
-### 主要特性
+#### 主要特性
 
 - 动态更新配置（ConfigMap/Secret）
 
@@ -102,20 +107,7 @@ implementation 'com.freemanan:kubernetes-config-cloud-starter:2.4.1'
 
   支持 `yaml`、`properties`、`json`、key-value 键值对
 
-### Versions
-
-主要维护的版本: `3.0.x`, `2.6.x`, `2.4.x`
-
-| Branch | Support Spring Boot Version | Latest Version  |
-|:------:|:---------------------------:|:---------------:|
-|  main  |            3.0.x            | not release yet |
-| 2.6.x  |       [2.6.0, 3.0.0)        |      2.6.1      |
-| 2.4.x  |       [2.4.0, 2.6.0)        |      2.4.1      |
-
-根据你使用的 Spring Boot 版本选择对应的版本。例如，如果你使用的是 Spring Boot 2.4.x，那么你可以使用 2.4.x
-分支的任何版本，但请尽量使用最新版本。
-
-### 最佳实践
+#### 最佳实践
 
 Spring Cloud 提供了在运行时动态刷新 Environment 的功能，主要会对两类 Bean 的属性进行动态更新：
 
@@ -139,3 +131,16 @@ Spring Cloud 提供了在运行时动态刷新 Environment 的功能，主要会
 - 业务配置
 
   这类配置应该与业务强相关，但是需要用户自行判断是否需要放入配置中心，是否有动态更新的需求。
+
+## Versions
+
+主要维护的版本: `3.0.x`, `2.6.x`, `2.4.x`
+
+| Branch | Support Spring Boot Version | Latest Version  |
+|:------:|:---------------------------:|:---------------:|
+|  main  |            3.0.x            | not release yet |
+| 2.6.x  |       [2.6.0, 3.0.0)        |      2.6.1      |
+| 2.4.x  |       [2.4.0, 2.6.0)        |      2.4.1      |
+
+根据你使用的 Spring Boot 版本选择对应的版本。例如，如果你使用的是 Spring Boot 2.4.x，那么你可以使用 2.4.x
+分支的任何版本，但请尽量使用最新版本。
