@@ -3,7 +3,7 @@ package com.freemanan.kubernetes.config.core;
 import static com.freemanan.kubernetes.config.util.Converter.propertySourceNameForResource;
 
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
-import com.freemanan.kubernetes.config.util.ApplicationContextHolder;
+import com.freemanan.kubernetes.config.util.RefreshContext;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.slf4j.Logger;
@@ -79,12 +79,13 @@ public class HasMetadataResourceEventHandler<T extends HasMetadata> implements R
     }
 
     private void refresh(HasMetadata obj) {
-        // This event may be executed asynchronously, so it cannot be bound to a thread
-        ApplicationContextHolder.set(context);
+        // Need to handle the case where events are processed asynchronously?
+        RefreshEvent refreshEvent = new RefreshEvent(obj, null, String.format("%s changed", obj.getKind()));
+        RefreshContext.set(new RefreshContext(context, refreshEvent));
         try {
-            context.publishEvent(new RefreshEvent(obj, null, String.format("%s changed", obj.getKind())));
+            context.publishEvent(refreshEvent);
         } finally {
-            ApplicationContextHolder.remove();
+            RefreshContext.remove();
         }
     }
 }
