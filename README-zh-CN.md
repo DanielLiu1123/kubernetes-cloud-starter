@@ -1,15 +1,42 @@
 # kubernetes-cloud-starter
 
+[English](./README.md) | [中文](./README-zh-CN.md)
+
 ## kubernetes-config-cloud-starter
 
-这个模块的主要目的是使用 Kubernetes 的 ConfigMap 作为分布式配置中心，在不重启应用的情况下实现配置的动态更新。
+这个模块的主要目的是使用 Kubernetes 的 ConfigMap/Secret 作为分布式配置中心，在不重启应用的情况下实现配置的动态更新。
+
+### Usage
+
+Maven 用户:
+
+```xml
+<dependency>
+    <groupId>com.freemanan</groupId>
+    <artifactId>kubernetes-config-cloud-starter</artifactId>
+    <version>2.4.1</version>
+</dependency>
+```
+
+Gradle 用户:
+
+```groovy
+implementation 'com.freemanan:kubernetes-config-cloud-starter:2.4.1'
+```
 
 ### Quick Start
 
 首先你需要一个 Kubernetes 集群，你可以使用 [docker-desktop](https://www.docker.com/products/docker-desktop/)
 或者 [minikube](https://minikube.sigs.k8s.io/docs/) 来创建一个集群。
 
-1. 为 ServiceAccount 创建 Role 和 RoleBinding
+1. Clone 项目
+
+    ```bash
+    git clone --depth=1 https://github.com/DanielLiu1123/kubernetes-cloud-starter.git
+    cd kubernetes-cloud-starter
+    ```
+
+2. 为 ServiceAccount 创建 Role 和 RoleBinding
     ```bash
     # 为了示例我们创建了 ClusterRole，但其实你可以更加精细化地控制资源，只需要 ConfigMap/Secret 的 get,list,watch 权限
     kubectl create clusterrole config-cluster-reader --verb=get,list,watch --resource=configmaps,secrets
@@ -17,7 +44,7 @@
     kubectl create clusterrolebinding config-cluster-reader-default-default --clusterrole config-cluster-reader --serviceaccount default:default
     ```
 
-2. 构建并启动
+3. 构建并启动
     ```shell
     ./gradlew clean bootJar
     
@@ -32,7 +59,7 @@
     # 你应该看到响应结果是 `100`
     ```
 
-3. 添加一个 ConfigMap
+4. 添加一个 ConfigMap
     ```shell
     # 这个 ConfigMap 正在由当前应用程序所监听，因此当这个 ConfigMap 被添加后，应用会自动更新配置
     kubectl apply -f examples/kubernetes-config/configmap-example-01.yaml
@@ -46,7 +73,7 @@
 
    通过上述操作，你可以看到应用程序不需要重启就可以实现配置的动态更新。
 
-4. 删除资源
+5. 删除资源
     ```shell
     # 删除上述操作创建的所有资源
     kubectl delete -f examples/kubernetes-config/deployment.yaml
@@ -57,7 +84,7 @@
 
 ### 主要特性
 
-- 动态更新配置
+- 动态更新配置（ConfigMap/Secret）
 
   可以手动配置是否需要监听配置文件变化。
 
@@ -65,7 +92,31 @@
 
   通过配置选择优先使用本地配置还是远程配置。
 
+- 支持多种配置文件格式
+
+  支持 `yaml`、`properties`、`json`、key-value 键值对
+
+### Versions
+
+主要维护的版本: `3.0.x`, `2.6.x`, `2.4.x`
+
+| Branch | Support Spring Boot Version | Latest Version  |
+|:------:|:---------------------------:|:---------------:|
+|  main  |            3.0.x            | not release yet |
+| 2.6.x  |       [2.6.0, 3.0.0)        |      2.6.1      |
+| 2.4.x  |       [2.4.0, 2.6.0)        |      2.4.1      |
+
+根据你使用的 Spring Boot 版本选择对应的版本。例如，如果你使用的是 Spring Boot 2.4.x，那么你可以使用 2.4.x
+分支的任何版本，但请尽量使用最新版本。
+
 ### 最佳实践
+
+Spring Cloud 提供了在运行时动态刷新 Environment 的功能，主要会对两类 Bean 的属性进行动态更新：
+
+- @ConfigurationProperties 注解的 Bean
+- @RefreshScope 注解的 Bean
+
+一个比较好的实践就是使用 @ConfigurationProperties 来组织你的配置类。
 
 一般一个应用程序的配置分为两类：
 
