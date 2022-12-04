@@ -9,10 +9,10 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
-import com.freemanan.kubernetes.config.util.ApplicationContextHolder;
 import com.freemanan.kubernetes.config.util.ConfigPreference;
 import com.freemanan.kubernetes.config.util.KubernetesClientHolder;
 import com.freemanan.kubernetes.config.util.Pair;
+import com.freemanan.kubernetes.config.util.RefreshContext;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -25,6 +25,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.boot.logging.DeferredLogFactory;
+import org.springframework.cloud.endpoint.event.RefreshEvent;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -52,14 +53,25 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
 
         KubernetesConfigProperties properties = getKubernetesConfigProperties(environment);
 
-        // TODO: can we recognize the refresh event and only refresh the changed resources?
-        pullConfigMaps(properties, environment);
-        pullSecrets(properties, environment);
+        if (isRefreshing()) {
+            RefreshEvent event = RefreshContext.get().getRefreshEvent();
+            Object resource = event.getSource();
+            if (resource instanceof ConfigMap) {
+                pullConfigMaps(properties, environment);
+            } else if (resource instanceof Secret) {
+                pullConfigMaps(properties, environment);
+            } else {
+                log.warn("Refreshed a Unknown resource type: " + resource.getClass());
+            }
+        } else {
+            pullConfigMaps(properties, environment);
+            pullSecrets(properties, environment);
+        }
     }
 
     private static KubernetesConfigProperties getKubernetesConfigProperties(ConfigurableEnvironment environment) {
-        return Optional.ofNullable(ApplicationContextHolder.get())
-                .map(context -> context.getBean(KubernetesConfigProperties.class))
+        return Optional.ofNullable(RefreshContext.get())
+                .map(context -> context.getApplicationContext().getBean(KubernetesConfigProperties.class))
                 .orElse(Binder.get(environment)
                         .bind(KubernetesConfigProperties.PREFIX, KubernetesConfigProperties.class)
                         .get());
@@ -148,7 +160,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     private static boolean isRefreshing() {
-        return ApplicationContextHolder.get() != null;
+        return RefreshContext.get() != null;
     }
 
     @Override
