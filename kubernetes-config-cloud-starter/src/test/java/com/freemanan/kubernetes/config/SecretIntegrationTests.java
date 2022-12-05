@@ -28,27 +28,46 @@ public class SecretIntegrationTests {
     static void init() {
         createOrReplaceConfigMap("secret/configmap.yaml");
         createOrReplaceSecret("secret/secret.yaml");
+        createOrReplaceSecret("secret/secret-refreshable.yaml");
     }
 
     @AfterAll
     static void recover() {
         deleteConfigMap("secret/configmap.yaml");
         deleteSecret("secret/secret.yaml");
+        deleteSecret("secret/secret-refreshable.yaml");
     }
 
     @Autowired
     private Environment env;
 
     @Test
-    void testSecret() {
+    void testSecret() throws InterruptedException {
+        // secret win, configmap lose
         assertThat(env.getProperty("username")).isNotEqualTo("admin");
-        assertThat(env.getProperty("password")).isNotEqualTo("cm9vdAo=");
-        assertThat(env.getProperty("username")).isEqualTo("root"); // cm9vdAo=
+        assertThat(env.getProperty("username")).isNotEqualTo("cm9vdAo=");
+        assertThat(env.getProperty("username")).isEqualTo("root");
         assertThat(env.getProperty("password")).isNotEqualTo("666");
         assertThat(env.getProperty("password")).isNotEqualTo("MTEyMzIyMwo=");
         assertThat(env.getProperty("password")).isEqualTo("1123223"); // MTEyMzIyMwo=
+
+        assertThat(env.getProperty("price")).isEqualTo("100");
+
         assertThat(env.getProperty("hobbies[0]")).isEqualTo("reading");
         assertThat(env.getProperty("hobbies[1]")).isEqualTo("writing");
         assertThat(env.getProperty("hobbies[2]")).isNull();
+
+        createOrReplaceSecret("secret/secret-changed.yaml");
+        createOrReplaceSecret("secret/secret-refreshable-changed.yaml");
+
+        // make sure context is refreshed
+        Thread.sleep(1000);
+
+        // secret refresh is disabled by default
+        assertThat(env.getProperty("username")).isNotEqualTo("root2");
+        assertThat(env.getProperty("username")).isEqualTo("root");
+
+        // test refreshable secret
+        assertThat(env.getProperty("price")).isEqualTo("200");
     }
 }

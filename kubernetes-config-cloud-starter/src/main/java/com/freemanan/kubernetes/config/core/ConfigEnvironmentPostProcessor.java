@@ -59,7 +59,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
             if (resource instanceof ConfigMap) {
                 pullConfigMaps(properties, environment);
             } else if (resource instanceof Secret) {
-                pullConfigMaps(properties, environment);
+                pullSecrets(properties, environment);
             } else {
                 log.warn("Refreshed a Unknown resource type: " + resource.getClass());
             }
