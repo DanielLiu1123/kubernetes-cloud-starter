@@ -47,7 +47,7 @@ public class NormalIntegrationTests {
         createOrReplaceConfigMap("normal/configmap-changed.yaml");
 
         // context is refreshing
-        Thread.sleep(1500);
+        Thread.sleep(1000);
 
         assertThat(env.getProperty("username")).isEqualTo("admin");
         assertThat(env.getProperty("password")).isEqualTo("888");
@@ -59,7 +59,7 @@ public class NormalIntegrationTests {
         deleteConfigMap("normal/configmap-changed.yaml");
 
         // context is refreshing
-        Thread.sleep(1500);
+        Thread.sleep(1000);
 
         assertThat(env.getProperty("username")).isEqualTo("admin");
         assertThat(env.getProperty("password")).isEqualTo("888");
