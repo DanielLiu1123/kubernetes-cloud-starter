@@ -1,6 +1,6 @@
 # kubernetes-cloud-starter
 
-[![Build](https://img.shields.io/github/workflow/status/DanielLiu1123/kubernetes-cloud-starter/Build/main)](https://github.com/DanielLiu1123/kubernetes-cloud-starter/actions)
+[![Build](https://img.shields.io/github/workflow/status/DanielLiu1123/kubernetes-cloud-starter/Build/2.6.x)](https://github.com/DanielLiu1123/kubernetes-cloud-starter/actions)
 [![Maven Central](https://img.shields.io/maven-central/v/com.freemanan/kubernetes-config-cloud-starter?versionPrefix=3.0)](https://search.maven.org/artifact/com.freemanan/kubernetes-config-cloud-starter)
 [![Maven Central](https://img.shields.io/maven-central/v/com.freemanan/kubernetes-config-cloud-starter?versionPrefix=2.6)](https://search.maven.org/artifact/com.freemanan/kubernetes-config-cloud-starter)
 [![Maven Central](https://img.shields.io/maven-central/v/com.freemanan/kubernetes-config-cloud-starter?versionPrefix=2.4)](https://search.maven.org/artifact/com.freemanan/kubernetes-config-cloud-starter)
