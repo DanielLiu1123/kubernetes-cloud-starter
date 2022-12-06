@@ -26,14 +26,14 @@ Maven users:
 <dependency>
     <groupId>com.freemanan</groupId>
     <artifactId>kubernetes-config-cloud-starter</artifactId>
-    <version>2.6.1</version>
+    <version>2.6.2</version>
 </dependency>
 ```
 
 Gradle users:
 
 ```groovy
-implementation 'com.freemanan:kubernetes-config-cloud-starter:2.6.1'
+implementation 'com.freemanan:kubernetes-config-cloud-starter:2.6.2'
 ```
 
 #### Quick Start
@@ -147,8 +147,8 @@ Mainly maintains versions: `3.0.x`, `2.6.x`, `2.4.x`
 | Branch | Support Spring Boot Version | Latest Version  |
 |:------:|:---------------------------:|:---------------:|
 |  main  |            3.0.x            | not release yet |
-| 2.6.x  |       [2.6.0, 3.0.0)        |      2.6.1      |
-| 2.4.x  |       [2.4.0, 2.6.0)        |      2.4.1      |
+| 2.6.x  |       [2.6.0, 3.0.0)        |      2.6.2      |
+| 2.4.x  |       [2.4.0, 2.6.0)        |      2.4.2      |
 
 Choose the corresponding version according to the version of Spring Boot you are using. For example, if you are using
 Spring Boot 2.4.x, then you can use any version of the 2.4.x branch, but please try to use the latest version.
