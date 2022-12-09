@@ -1,0 +1,18 @@
+microservice-base:
+  kubernetes:
+    config:
+      enabled: true
+      namespace: default
+      preference: remote
+      refresh-enabled: true
+      refresh-on-delete: false
+      config-maps:
+        - name: my-configmap
+          namespace: default
+          preference: remote
+          refresh-enabled: true
+      secrets:
+        - name: my-secret
+          namespace: default
+          preference: remote
+          refresh-enabled: false

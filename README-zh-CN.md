@@ -107,6 +107,29 @@ implementation 'com.freemanan:kubernetes-config-cloud-starter:3.0.0-SNAPSHOT'
 
   支持 `yaml`、`properties`、`json`、key-value 键值对
 
+#### 配置项
+
+```yaml
+microservice-base:
+  kubernetes:
+    config:
+      enabled: true # 是否启用 config 模块功能，默认为 true
+      namespace: default # 配置所在的命名空间（全局配置），如果在 Kubernetes 集群内部，默认为当前 pod 所在的命名空间；如果在 Kubernetes 集群外部，默认为当前 context 的命名空间
+      preference: remote # 配置优先级（全局配置），remote 优先使用远程配置，local 优先使用本地配置，默认为 remote
+      refresh-enabled: true # 是否启用动态更新配置（全局配置），默认为 true
+      refresh-on-delete: false # 在删除配置时是否自动刷新，启用该配置可能会带来一定风险，如果你的配置项只存在与远端而本地没有，假如误删 configmap 可能会导致程序出现异常，因此该默认值为 false
+      config-maps:
+        - name: my-configmap # configmap name
+          namespace: default # configmap 所在的命名空间，会覆盖 namespace 的全局配置
+          preference: remote # 配置优先级，会覆盖 preference 的全局配置
+          refresh-enabled: true # 是否启用动态更新配置，会覆盖 refresh-enabled 的全局配置
+      secrets:
+        - name: my-secret # secret name
+          namespace: default # secret 所在的命名空间，会覆盖 namespace 的全局配置
+          preference: remote # 配置优先级，会覆盖 preference 的全局配置
+          refresh-enabled: false # 是否启用动态更新配置，会覆盖 refresh-enabled 的全局配置，因为 secret 一般不会有动态刷新的需求，所以默认值为 false
+```
+
 #### 最佳实践
 
 Spring Cloud 提供了在运行时动态刷新 Environment 的功能，主要会对两类 Bean 的属性进行动态更新：
