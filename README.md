@@ -110,6 +110,29 @@ or [minikube](https://minikube.sigs.k8s.io/docs/) to create a cluster.
 
   Supports configuration files in `yaml`, `properties`, `json` and key-value pair.
 
+#### Configurations
+
+```yaml
+microservice-base:
+  kubernetes:
+    config:
+      enabled: true # Whether to enable the config module function, the default is true
+      namespace: default # The namespace where the configuration is located (global configuration). If it is inside the Kubernetes cluster, it defaults to the namespace where the current pod is located; if it is outside the Kubernetes cluster, it defaults to the namespace of the current context
+      preference: remote # Configuration priority (global configuration), remote is preferred to use remote configuration, local is preferred to use local configuration, and the default is remote
+      refresh-enabled: true # Whether to enable dynamic update configuration (global configuration), the default is true
+      refresh-on-delete: false # Whether to automatically refresh when deleting the configuration, enabling this configuration may bring certain risks, if your configuration items only exist on the remote side but not locally, if you delete the configmap by mistake, it may cause abnormalities in the program, so the default value is false
+      config-maps:
+        - name: my-configmap # configmap name
+          namespace: default # The namespace where configmap is located will override the global configuration of the namespace
+          preference: remote # Configuration priority, which will override the global configuration of preference
+          refresh-enabled: true # Whether to enable dynamic update configuration, it will override the refresh-enabled global configuration
+      secrets:
+        - name: my-secret # secret name
+          namespace: default # The namespace where the secret is located will override the global configuration of the namespace
+          preference: remote # Configuration priority, which will override the global configuration of preference
+          refresh-enabled: false # Whether to enable dynamic update configuration will override the global configuration of refresh-enabled, because secrets generally do not require dynamic refresh, so the default value is false
+```
+
 #### Best Practices
 
 Spring Cloud provides the capability of dynamically refreshing the Environment at runtime, which mainly dynamically
