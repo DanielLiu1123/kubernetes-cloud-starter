@@ -74,7 +74,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
                 .map(context -> context.applicationContext().getBean(KubernetesConfigProperties.class))
                 .orElse(Binder.get(environment)
                         .bind(KubernetesConfigProperties.PREFIX, KubernetesConfigProperties.class)
-                        .get());
+                        .orElseGet(KubernetesConfigProperties::new));
     }
 
     private void pullConfigMaps(KubernetesConfigProperties properties, ConfigurableEnvironment environment) {

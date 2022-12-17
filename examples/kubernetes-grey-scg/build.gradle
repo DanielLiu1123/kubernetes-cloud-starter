@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management'
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    implementation("org.springframework.cloud:spring-cloud-starter-gateway")
+    implementation(project(":kubernetes-grey-cloud-starter"))
+    implementation(project(":kubernetes-config-cloud-starter"))
+    implementation 'io.netty:netty-all'
+
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+}

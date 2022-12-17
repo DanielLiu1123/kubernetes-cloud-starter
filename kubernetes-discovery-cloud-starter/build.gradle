@@ -1,0 +1,18 @@
+dependencies {
+    api platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    annotationProcessor platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    api platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+    compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+
+    api(project(':kubernetes-commons'))
+
+    compileOnly "org.springframework.cloud:spring-cloud-starter-loadbalancer"
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//    testImplementation(project(':kubernetes-commons'))
+}
+
+apply from: "${rootProject.projectDir}/deploy.gradle"

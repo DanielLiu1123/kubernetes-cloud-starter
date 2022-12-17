@@ -1,0 +1,21 @@
+dependencies {
+    api platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    annotationProcessor platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    api platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+    compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+
+    api(project(':kubernetes-grey-commons'))
+
+    compileOnly "org.springframework.boot:spring-boot-starter-web"
+    compileOnly "org.springframework.cloud:spring-cloud-starter-gateway"
+    compileOnly "org.springframework.cloud:spring-cloud-starter-openfeign"
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    testImplementation "org.springframework.cloud:spring-cloud-starter-gateway"
+}
+
+apply from: "${rootProject.projectDir}/deploy.gradle"

@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: kubernetes-grey-scg
+  cloud:
+    gateway:
+      routes:
+        - id: node-server
+          uri: http://localhost:8000
+          predicates:
+            - Path=/api/**
+          filters:
+            - StripPrefix=1
+  config:
+    import: grey.yaml
+
+logging:
+  level:
+    org.springframework.cloud.gateway: trace
+    reactor.netty.http.client: trace
+server:
+  port: 10000
+microservice-base:
+  kubernetes:
+    config:
+      config-maps:
+        - name: grey
+          namespace: default

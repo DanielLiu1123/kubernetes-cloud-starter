@@ -1,0 +1,14 @@
+dependencies {
+    api platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    annotationProcessor platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    api platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+    compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+
+    api 'org.springframework.cloud:spring-cloud-starter'
+    api "io.fabric8:kubernetes-client"
+
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+apply from: "${rootProject.projectDir}/deploy.gradle"

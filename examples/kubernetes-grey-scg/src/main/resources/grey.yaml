@@ -1,0 +1,22 @@
+microservice-base:
+  kubernetes:
+    grey:
+      rules:
+        - name: rule-01
+          predicates:
+            headers:
+              - name: grey-name
+                pattern: rule-01
+          mappings:
+            - master:
+                service: localhost
+                namespace: default
+                port: 8000
+              features:
+                - service: localhost
+                  port: 8001
+                  weight: 90
+                - service: localhost
+                  namespace: default
+                  port: 8002
+                  weight: 30
