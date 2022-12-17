@@ -1,6 +1,6 @@
 # kubernetes-cloud-starter
 
-[![Build](https://img.shields.io/github/workflow/status/DanielLiu1123/kubernetes-cloud-starter/Build/main)](https://github.com/DanielLiu1123/kubernetes-cloud-starter/actions)
+[![Build](https://img.shields.io/github/actions/workflow/status/DanielLiu1123/kubernetes-cloud-starter/build.yml?branch=main)](https://github.com/DanielLiu1123/kubernetes-cloud-starter/actions)
 [![Maven Central](https://img.shields.io/maven-central/v/com.freemanan/kubernetes-config-cloud-starter?versionPrefix=3.0)](https://search.maven.org/artifact/com.freemanan/kubernetes-config-cloud-starter)
 [![Maven Central](https://img.shields.io/maven-central/v/com.freemanan/kubernetes-config-cloud-starter?versionPrefix=2.6)](https://search.maven.org/artifact/com.freemanan/kubernetes-config-cloud-starter)
 [![Maven Central](https://img.shields.io/maven-central/v/com.freemanan/kubernetes-config-cloud-starter?versionPrefix=2.4)](https://search.maven.org/artifact/com.freemanan/kubernetes-config-cloud-starter)
@@ -13,6 +13,14 @@
 - [kubernetes-config-cloud-starter](#kubernetes-config-cloud-starter)
 
   这个模块的主要目的是使用 Kubernetes 的 ConfigMap/Secret 作为分布式配置中心，在不重启应用的情况下实现配置的动态更新。
+
+- [kubernetes-discovery-cloud-starter](#kubernetes-discovery-cloud-starter)
+
+  该模块是 Spring Cloud DiscoveryClient 的 Kubernetes 实现。
+
+- [kubernetes-grey-cloud-starter](#kubernetes-grey-cloud-starter)
+
+  该模块使用 Kubernetes 的原生服务发现实现服务灰度发布。
 
 ### kubernetes-config-cloud-starter
 

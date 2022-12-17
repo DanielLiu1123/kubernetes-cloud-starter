@@ -1,6 +1,7 @@
 package com.freemanan.kubernetes.discovery;
 
 import com.freemanan.kubernetes.commons.KubernetesClientAutoConfiguration;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,6 +14,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  *
  * @author Freeman
  */
+@Disabled("Still in development")
 class DiscoveryIntegrationTests {
 
     @Test
