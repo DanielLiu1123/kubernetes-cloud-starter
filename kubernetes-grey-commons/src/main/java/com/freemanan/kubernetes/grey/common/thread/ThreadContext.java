@@ -18,4 +18,17 @@ public class ThreadContext {
     public void setGreys(List<Grey> greys) {
         this.greys = greys;
     }
+
+    /**
+     * Get greys in thread context.
+     *
+     * @return greys, may be null
+     */
+    public static List<Grey> greys() {
+        ThreadContext threadContext = ThreadContextHolder.get();
+        if (threadContext == null) {
+            return null;
+        }
+        return threadContext.getGreys();
+    }
 }

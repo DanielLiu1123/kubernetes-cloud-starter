@@ -3,7 +3,6 @@ package com.freemanan.kubernetes.grey.client.feign;
 import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
 import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
@@ -18,12 +17,8 @@ import java.util.Map;
 public class GreyRequestInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate template) {
-        ThreadContext threadContext = ThreadContextHolder.get();
-        if (threadContext == null) {
-            return;
-        }
-        List<Grey> greys = threadContext.getGreys();
-        if (greys == null || greys.isEmpty()) {
+        List<Grey> greys = ThreadContext.greys();
+        if (greys == null) {
             return;
         }
 

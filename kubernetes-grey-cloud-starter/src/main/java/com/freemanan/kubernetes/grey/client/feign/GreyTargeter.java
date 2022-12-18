@@ -2,11 +2,8 @@ package com.freemanan.kubernetes.grey.client.feign;
 
 import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
 import com.freemanan.kubernetes.grey.common.util.GreyUtil;
 import feign.Feign;
-import feign.Request;
-import feign.RequestTemplate;
 import feign.Target;
 import java.net.URI;
 import java.util.List;
@@ -32,36 +29,20 @@ public class GreyTargeter implements Targeter {
             Feign.Builder feign,
             FeignClientFactory context,
             Target.HardCodedTarget<T> target) {
-        return feign.target(new GreyTarget<>(target));
+        return feign.target(new GreyTarget<>(target.type(), target.name(), target.url()));
     }
 
-    static class GreyTarget<T> implements Target<T> {
+    static class GreyTarget<T> extends Target.HardCodedTarget<T> {
 
-        private final Target<T> delegate;
-
-        public GreyTarget(Target<T> delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public Class<T> type() {
-            return delegate.type();
-        }
-
-        @Override
-        public String name() {
-            return delegate.name();
+        public GreyTarget(Class<T> type, String name, String url) {
+            super(type, name, url);
         }
 
         @Override
         public String url() {
-            String originUrl = delegate.url();
+            String originUrl = super.url();
 
-            ThreadContext threadContext = ThreadContextHolder.get();
-            if (threadContext == null) {
-                return originUrl;
-            }
-            List<Grey> greys = threadContext.getGreys();
+            List<Grey> greys = ThreadContext.greys();
             if (greys == null || greys.isEmpty()) {
                 return originUrl;
             }
@@ -80,29 +61,6 @@ public class GreyTargeter implements Targeter {
                 log.debug("[FeignClient] Dynamic change url from {} to {}", origin, newUri);
             }
             return newUri.toString();
-        }
-
-        @Override
-        public Request apply(RequestTemplate input) {
-            return delegate.apply(input);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            GreyTarget<?> that = (GreyTarget<?>) o;
-            return Objects.equals(delegate, that.delegate);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(delegate);
-        }
-
-        @Override
-        public String toString() {
-            return "DynamicUrlTarget{" + "delegate=" + delegate + '}';
         }
     }
 }
