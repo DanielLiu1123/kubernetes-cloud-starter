@@ -38,7 +38,10 @@ public class Grey {
                 if (features.size() > 1 && feature.getWeight() == null) {
                     throw new IllegalArgumentException("weight must be set because multiple features found !");
                 }
-                featuresWeight += feature.getWeight();
+
+                if (feature.getWeight() != null) {
+                    featuresWeight += feature.getWeight();
+                }
             }
 
             if (featuresWeight > 100 && master.getWeight() == null) {
