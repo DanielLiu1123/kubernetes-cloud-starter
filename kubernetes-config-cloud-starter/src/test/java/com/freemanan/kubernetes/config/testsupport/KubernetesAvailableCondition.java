@@ -1,6 +1,6 @@
 package com.freemanan.kubernetes.config.testsupport;
 
-import com.freemanan.kubernetes.config.util.KubernetesUtil;
+import com.freemanan.kubernetes.commons.KubernetesUtil;
 import io.fabric8.kubernetes.client.Config;
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;

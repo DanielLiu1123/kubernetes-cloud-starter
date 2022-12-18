@@ -4,8 +4,7 @@ dependencies {
     api platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
     compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
 
-    api 'org.springframework.cloud:spring-cloud-starter'
-    api "io.fabric8:kubernetes-client"
+    api(project(":kubernetes-commons"))
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 

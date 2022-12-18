@@ -2,9 +2,9 @@ package com.freemanan.kubernetes.grey.client.feign;
 
 import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
+import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
+import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
-import com.freemanan.kubernetes.grey.thread.ThreadContext;
-import com.freemanan.kubernetes.grey.thread.ThreadContextHolder;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import java.util.Collection;

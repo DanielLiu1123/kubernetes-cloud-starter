@@ -1,18 +1,27 @@
 package com.freemanan.kubernetes.grey.common.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.freemanan.kubernetes.commons.KubernetesUtil;
 import com.freemanan.kubernetes.grey.common.Destination;
 import com.freemanan.kubernetes.grey.common.Grey;
+import com.freemanan.kubernetes.grey.common.JustDoRunnable;
+import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
+import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Freeman
  */
 public class GreyUtil {
+    private static final Logger log = LoggerFactory.getLogger(GreyUtil.class);
     private static final Random random = new Random();
 
     /**
@@ -95,16 +104,18 @@ public class GreyUtil {
     static URI greyUri(Destination destination, URI uri) {
         String uriStr = uri.toString();
 
+        String svc = service(uri);
+        String ns = namespace(uri);
+
         if (containsNamespace(uri)) {
-            uriStr = uriStr.replace("." + namespace(uri), "." + destination.getNamespace())
-                    .replace(service(uri) + ".", destination.getService() + ".");
+            uriStr = uriStr.replace(svc + "." + ns, destination.getService() + "." + destination.getNamespace());
         } else {
             // if uri not contains namespace and namespace not changed, don't add namespace manually
-            if (Objects.equals(namespace(uri), destination.getNamespace())) {
-                uriStr = uriStr.replace(service(uri), destination.getService());
+            if (Objects.equals(ns, destination.getNamespace())) {
+                uriStr = uriStr.replace(svc, destination.getService());
             } else {
                 // namespace changed, must add namespace manually
-                uriStr = uriStr.replace(service(uri), destination.getService() + "." + destination.getNamespace());
+                uriStr = uriStr.replace(svc, destination.getService() + "." + destination.getNamespace());
             }
         }
 
@@ -149,5 +160,30 @@ public class GreyUtil {
 
     static String host(URI uri) {
         return uri.getHost();
+    }
+
+    public static void doGreyInContext(Supplier<String> headerSupplier, JustDoRunnable action) throws Exception {
+        String greyVersion = headerSupplier.get();
+        if (!StringUtils.hasText(greyVersion)) {
+            action.run();
+            return;
+        }
+        List<Grey> greys;
+        try {
+            greys = JsonUtil.toBean(greyVersion, new TypeReference<List<Grey>>() {});
+        } catch (Exception e) {
+            // Json parse error, don't fail the request, but can't do grey
+            log.warn("Grey header Json parse error, value: {}", greyVersion);
+            action.run();
+            return;
+        }
+        ThreadContext tc = new ThreadContext();
+        tc.setGreys(greys);
+        ThreadContextHolder.set(tc);
+        try {
+            action.run();
+        } finally {
+            ThreadContextHolder.remove();
+        }
     }
 }

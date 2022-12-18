@@ -1,4 +1,4 @@
-package com.freemanan.kubernetes.grey.thread;
+package com.freemanan.kubernetes.grey.common.thread;
 
 import java.util.Objects;
 

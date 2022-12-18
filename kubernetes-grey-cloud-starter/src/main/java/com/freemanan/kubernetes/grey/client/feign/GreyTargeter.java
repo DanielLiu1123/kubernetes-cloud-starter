@@ -1,9 +1,9 @@
 package com.freemanan.kubernetes.grey.client.feign;
 
 import com.freemanan.kubernetes.grey.common.Grey;
+import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
+import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
 import com.freemanan.kubernetes.grey.common.util.GreyUtil;
-import com.freemanan.kubernetes.grey.thread.ThreadContext;
-import com.freemanan.kubernetes.grey.thread.ThreadContextHolder;
 import feign.Feign;
 import feign.Request;
 import feign.RequestTemplate;

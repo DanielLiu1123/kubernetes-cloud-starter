@@ -8,9 +8,9 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
+import com.freemanan.kubernetes.commons.KubernetesClientHolder;
 import com.freemanan.kubernetes.config.KubernetesConfigProperties;
 import com.freemanan.kubernetes.config.util.ConfigPreference;
-import com.freemanan.kubernetes.config.util.KubernetesClientHolder;
 import com.freemanan.kubernetes.config.util.Pair;
 import com.freemanan.kubernetes.config.util.RefreshContext;
 import io.fabric8.kubernetes.api.model.ConfigMap;

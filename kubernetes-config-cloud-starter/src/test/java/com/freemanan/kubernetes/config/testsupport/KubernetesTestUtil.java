@@ -1,6 +1,6 @@
 package com.freemanan.kubernetes.config.testsupport;
 
-import com.freemanan.kubernetes.config.util.KubernetesUtil;
+import com.freemanan.kubernetes.commons.KubernetesUtil;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;

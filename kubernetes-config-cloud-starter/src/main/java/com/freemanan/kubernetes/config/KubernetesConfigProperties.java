@@ -1,12 +1,10 @@
 package com.freemanan.kubernetes.config;
 
-import static com.freemanan.kubernetes.config.util.KubernetesUtil.currentNamespace;
-
+import com.freemanan.kubernetes.commons.KubernetesUtil;
 import com.freemanan.kubernetes.config.util.ConfigPreference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -286,6 +284,6 @@ public class KubernetesConfigProperties {
     }
 
     private static String determineNamespace() {
-        return Optional.ofNullable(currentNamespace()).orElse("default");
+        return KubernetesUtil.currentNamespace();
     }
 }
