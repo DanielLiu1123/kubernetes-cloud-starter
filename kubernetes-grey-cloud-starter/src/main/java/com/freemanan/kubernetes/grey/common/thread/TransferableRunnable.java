@@ -4,7 +4,6 @@ import java.util.Objects;
 
 /**
  * @author Freeman
- * @since 2022/12/17
  */
 public class TransferableRunnable implements Runnable {
 

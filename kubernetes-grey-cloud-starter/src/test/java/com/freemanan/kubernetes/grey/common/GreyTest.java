@@ -4,10 +4,17 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
+/**
+ * {@link Grey} tester.
+ */
 class GreyTest {
 
+    /**
+     * {@link Grey#validate()}
+     */
     @Test
     void testValidate() {
         Grey grey = new Grey();
@@ -47,7 +54,7 @@ class GreyTest {
         d1.setNamespace("default");
         d1.setPort(null);
         d1.setWeight(100.1);
-        grey.setFeatures(Arrays.asList(d1));
+        grey.setFeatures(List.of(d1));
 
         assertThatCode(grey::validate).doesNotThrowAnyException();
 
@@ -64,7 +71,7 @@ class GreyTest {
         d1.setNamespace("default");
         d1.setPort(null);
         d1.setWeight(100.1);
-        grey.setFeatures(Arrays.asList(d1));
+        grey.setFeatures(List.of(d1));
 
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(grey::validate)

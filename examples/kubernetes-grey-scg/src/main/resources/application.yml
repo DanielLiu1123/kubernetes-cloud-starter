@@ -25,3 +25,4 @@ microservice-base:
       config-maps:
         - name: grey
           namespace: default
+      enabled: false

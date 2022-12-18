@@ -4,7 +4,6 @@ include(':kubernetes-commons')
 include(':kubernetes-config-cloud-starter')
 include(':kubernetes-discovery-cloud-starter')
 include(':kubernetes-grey-cloud-starter')
-include(':kubernetes-grey-commons')
 
 // examples
 include(':examples:kubernetes-config')

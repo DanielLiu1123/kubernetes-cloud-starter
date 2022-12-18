@@ -15,7 +15,7 @@ microservice-base:
               features:
                 - service: localhost
                   port: 8001
-                  weight: 90
+                  weight: 30
                 - service: localhost
                   namespace: default
                   port: 8002

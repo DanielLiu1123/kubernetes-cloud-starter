@@ -1,16 +1,21 @@
 package com.freemanan.kubernetes.grey;
 
 import com.freemanan.kubernetes.commons.KubernetesClientAutoConfiguration;
+import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
+import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
 import com.freemanan.kubernetes.grey.support.OpenFeign;
 import com.freemanan.kubernetes.grey.support.SpringCloudGateway;
 import com.freemanan.kubernetes.grey.support.WebMvc;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author Freeman
@@ -29,4 +34,28 @@ public class KubernetesGreyAutoConfiguration {
     @Configuration(proxyBeanMethods = false)
     @Import({OpenFeign.class})
     static class ClientSupport {}
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(Mono.class)
+    static class ReactorSupport implements InitializingBean {
+
+        @Override
+        public void afterPropertiesSet() {
+            registerHook();
+        }
+
+        private static void registerHook() {
+            Schedulers.onScheduleHook(ThreadContext.class.getName(), runnable -> {
+                ThreadContext context = ThreadContextHolder.get();
+                return () -> {
+                    ThreadContextHolder.set(context);
+                    try {
+                        runnable.run();
+                    } finally {
+                        ThreadContextHolder.remove();
+                    }
+                };
+            });
+        }
+    }
 }
