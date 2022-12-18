@@ -1,6 +1,6 @@
 package com.freemanan.kubernetes.grey.server.mvc;
 
-import static com.freemanan.kubernetes.grey.common.util.GreyUtil.doGreyInContext;
+import static com.freemanan.kubernetes.grey.common.util.GreyUtil.doGreyInContextIfNecessary;
 
 import com.freemanan.kubernetes.grey.common.GreyConst;
 import jakarta.servlet.FilterChain;
@@ -19,7 +19,7 @@ public class GreyFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            doGreyInContext(
+            doGreyInContextIfNecessary(
                     () -> request.getHeader(GreyConst.HEADER_GREY_VERSION),
                     () -> filterChain.doFilter(request, response));
         } catch (ServletException | IOException e) {

@@ -162,7 +162,8 @@ public class GreyUtil {
         return uri.getHost();
     }
 
-    public static void doGreyInContext(Supplier<String> headerSupplier, JustDoRunnable action) throws Exception {
+    public static void doGreyInContextIfNecessary(Supplier<String> headerSupplier, JustDoRunnable action)
+            throws Exception {
         String greyVersion = headerSupplier.get();
         if (!StringUtils.hasText(greyVersion)) {
             action.run();
