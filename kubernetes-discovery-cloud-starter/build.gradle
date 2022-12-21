@@ -12,7 +12,6 @@ dependencies {
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//    testImplementation(project(':kubernetes-commons'))
 }
 
 apply from: "${rootProject.projectDir}/deploy.gradle"
