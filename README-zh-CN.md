@@ -33,14 +33,14 @@ Maven 用户:
 <dependency>
     <groupId>com.freemanan</groupId>
     <artifactId>kubernetes-config-cloud-starter</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
 Gradle 用户:
 
 ```groovy
-implementation 'com.freemanan:kubernetes-config-cloud-starter:3.0.0-SNAPSHOT'
+implementation 'com.freemanan:kubernetes-config-cloud-starter:3.0.0'
 ```
 
 #### Quick Start
@@ -167,11 +167,11 @@ Spring Cloud 提供了在运行时动态刷新 Environment 的功能，主要会
 
 主要维护的版本: `3.0.x`, `2.6.x`, `2.4.x`
 
-| Branch | Support Spring Boot Version | Latest Version  |
-|:------:|:---------------------------:|:---------------:|
-|  main  |            3.0.x            | not release yet |
-| 2.6.x  |       [2.6.0, 3.0.0)        |      2.6.1      |
-| 2.4.x  |       [2.4.0, 2.6.0)        |      2.4.1      |
+| Branch | Support Spring Boot Version | Latest Version |
+|:------:|:---------------------------:|:--------------:|
+|  main  |            3.0.x            |     3.0.0      |
+| 2.6.x  |       [2.6.0, 3.0.0)        |     2.6.2      |
+| 2.4.x  |       [2.4.0, 2.6.0)        |     2.4.2      |
 
 根据你使用的 Spring Boot 版本选择对应的版本。例如，如果你使用的是 Spring Boot 2.4.x，那么你可以使用 2.4.x
 分支的任何版本，但请尽量使用最新版本。

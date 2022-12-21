@@ -26,14 +26,14 @@ Maven users:
 <dependency>
     <groupId>com.freemanan</groupId>
     <artifactId>kubernetes-config-cloud-starter</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
 Gradle users:
 
 ```groovy
-implementation 'com.freemanan:kubernetes-config-cloud-starter:3.0.0-SNAPSHOT'
+implementation 'com.freemanan:kubernetes-config-cloud-starter:3.0.0'
 ```
 
 #### Quick Start
@@ -167,11 +167,11 @@ In general, the configuration of an application falls into two categories:
 
 Mainly maintains versions: `3.0.x`, `2.6.x`, `2.4.x`
 
-| Branch | Support Spring Boot Version | Latest Version  |
-|:------:|:---------------------------:|:---------------:|
-|  main  |            3.0.x            | not release yet |
-| 2.6.x  |       [2.6.0, 3.0.0)        |      2.6.1      |
-| 2.4.x  |       [2.4.0, 2.6.0)        |      2.4.1      |
+| Branch | Support Spring Boot Version | Latest Version |
+|:------:|:---------------------------:|:--------------:|
+|  main  |            3.0.x            |     3.0.0      |
+| 2.6.x  |       [2.6.0, 3.0.0)        |     2.6.2      |
+| 2.4.x  |       [2.4.0, 2.6.0)        |     2.4.2      |
 
 Choose the corresponding version according to the version of Spring Boot you are using. For example, if you are using
 Spring Boot 2.4.x, then you can use any version of the 2.4.x branch, but please try to use the latest version.
