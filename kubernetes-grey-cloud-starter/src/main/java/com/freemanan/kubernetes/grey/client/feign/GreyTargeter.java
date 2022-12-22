@@ -46,13 +46,9 @@ public class GreyTargeter implements Targeter {
             if (greys == null || greys.isEmpty()) {
                 return originUrl;
             }
-            URI origin = URI.create(originUrl);
-            Grey grey = GreyUtil.getMathchedGrey(origin, greys);
-            if (grey == null) {
-                return originUrl;
-            }
-            URI newUri = GreyUtil.grey(origin, grey);
 
+            URI origin = URI.create(originUrl);
+            URI newUri = GreyUtil.grey(origin, greys);
             if (Objects.equals(origin, newUri)) {
                 return originUrl;
             }

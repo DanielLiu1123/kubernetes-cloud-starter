@@ -30,6 +30,9 @@ public class GreyUtil {
      * @return matched grey, may be null
      */
     public static Grey getMathchedGrey(URI uri, List<Grey> greys) {
+        if (greys == null || greys.isEmpty()) {
+            return null;
+        }
         Destination dest = new Destination();
         dest.setService(service(uri));
         dest.setNamespace(namespace(uri));
@@ -55,6 +58,12 @@ public class GreyUtil {
             }
         }
         return randomGreyUri(uri, grey);
+    }
+
+    public static URI grey(URI uri, List<Grey> greys) {
+        return Optional.ofNullable(getMathchedGrey(uri, greys))
+                .map(grey -> grey(uri, grey))
+                .orElse(uri);
     }
 
     private static double getMasterWeight(Grey grey) {
