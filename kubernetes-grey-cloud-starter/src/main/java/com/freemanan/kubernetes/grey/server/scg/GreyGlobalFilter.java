@@ -3,15 +3,17 @@ package com.freemanan.kubernetes.grey.server.scg;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 
 import com.freemanan.kubernetes.grey.KubernetesGreyProperties;
-import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
 import com.freemanan.kubernetes.grey.common.util.GreyUtil;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import com.freemanan.kubernetes.grey.predicate.ReactiveMatcher;
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -25,9 +27,9 @@ import reactor.core.publisher.Mono;
 
 /**
  * @author Freeman
- * @since 2022/12/17
  */
 public class GreyGlobalFilter implements GlobalFilter, Ordered {
+    private static final Logger log = LoggerFactory.getLogger(GreyGlobalFilter.class);
 
     /**
      * Before {@link NettyRoutingFilter}, we can modify the request url before routing.
@@ -47,20 +49,28 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
         // only hit one rule
         for (KubernetesGreyProperties.Rule rule : rules) {
             if (match(exchange, rule)) {
-                exchange.getRequest()
-                        .mutate()
-                        .headers(httpHeaders ->
-                                httpHeaders.add(GreyConst.HEADER_GREY_VERSION, JsonUtil.toJson(rule.getMappings())));
-
-                URI requestUrl = exchange.getRequiredAttribute(GATEWAY_REQUEST_URL_ATTR);
-                Grey grey = GreyUtil.getMathchedGrey(requestUrl, rule.getMappings());
-                if (grey == null) {
-                    // not match any destination, use master
-                    return chain.filter(exchange);
+                ServerWebExchange.Builder builder = exchange.mutate();
+                // add header
+                if (!exchange.getRequest().getHeaders().containsKey(GreyConst.HEADER_GREY_VERSION)) {
+                    builder.request(exchange.getRequest()
+                            .mutate()
+                            .headers(httpHeaders ->
+                                    httpHeaders.add(GreyConst.HEADER_GREY_VERSION, JsonUtil.toJson(rule.getMappings())))
+                            .build());
                 }
-                URI greyUri = GreyUtil.grey(requestUrl, grey);
-                exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, greyUri);
-                break;
+                // change url if needed
+                URI origin = exchange.getRequiredAttribute(GATEWAY_REQUEST_URL_ATTR);
+                URI newUri = GreyUtil.grey(origin, rule.getMappings());
+                if (Objects.equals(origin, newUri)) {
+                    return chain.filter(builder.build());
+                }
+                builder.request(exchange.getRequest().mutate().uri(newUri).build());
+                // url depends on 'GATEWAY_REQUEST_URL_ATTR', see NettyRoutingFilter
+                exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, newUri);
+                if (log.isDebugEnabled()) {
+                    log.debug("[Grey] origin: {}, new: {}", origin, newUri);
+                }
+                return chain.filter(builder.build());
             }
         }
 
@@ -97,7 +107,7 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
             return true;
         }
         ReactiveMatcher matcher = BeanUtils.instantiateClass(matcherClass);
-        return matcher.match(exchange);
+        return matcher.match(exchange.getRequest());
     }
 
     private static boolean hit(HttpHeaders headers, KubernetesGreyProperties.Rule.Predicates.Header header) {

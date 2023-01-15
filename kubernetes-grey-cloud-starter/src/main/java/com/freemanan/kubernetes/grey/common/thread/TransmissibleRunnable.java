@@ -5,18 +5,18 @@ import java.util.Objects;
 /**
  * @author Freeman
  */
-public class TransferableRunnable implements Runnable {
+public class TransmissibleRunnable implements Runnable {
 
     private final Runnable runnable;
     private final ThreadContext threadContext;
 
-    public TransferableRunnable(Runnable runnable) {
+    public TransmissibleRunnable(Runnable runnable) {
         this.runnable = runnable;
         this.threadContext = ThreadContextHolder.get();
     }
 
     public static Runnable wrap(Runnable runnable) {
-        return new TransferableRunnable(runnable);
+        return new TransmissibleRunnable(runnable);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class TransferableRunnable implements Runnable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TransferableRunnable that = (TransferableRunnable) o;
+        TransmissibleRunnable that = (TransmissibleRunnable) o;
         return Objects.equals(runnable, that.runnable);
     }
 

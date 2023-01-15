@@ -1,10 +1,12 @@
 package com.freemanan.kubernetes.grey;
 
 import com.freemanan.kubernetes.commons.KubernetesClientAutoConfiguration;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
+import com.freemanan.kubernetes.grey.common.thread.ReactorHookRegistrant;
 import com.freemanan.kubernetes.grey.support.OpenFeign;
+import com.freemanan.kubernetes.grey.support.RestTemplate;
 import com.freemanan.kubernetes.grey.support.SpringCloudGateway;
+import com.freemanan.kubernetes.grey.support.WebClient;
+import com.freemanan.kubernetes.grey.support.WebFlux;
 import com.freemanan.kubernetes.grey.support.WebMvc;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.springframework.beans.factory.InitializingBean;
@@ -15,7 +17,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 /**
  * @author Freeman
@@ -28,34 +29,20 @@ import reactor.core.scheduler.Schedulers;
 public class KubernetesGreyAutoConfiguration {
 
     @Configuration(proxyBeanMethods = false)
-    @Import({SpringCloudGateway.class, WebMvc.class})
+    @Import({SpringCloudGateway.class, WebMvc.class, WebFlux.class})
     static class ServerSupport {}
 
     @Configuration(proxyBeanMethods = false)
-    @Import({OpenFeign.class})
+    @Import({OpenFeign.class, RestTemplate.class, WebClient.class})
     static class ClientSupport {}
 
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(Mono.class)
-    static class ReactorSupport implements InitializingBean {
+    static class ReactorThreadLocalSupport implements InitializingBean {
 
         @Override
         public void afterPropertiesSet() {
-            registerHook();
-        }
-
-        private static void registerHook() {
-            Schedulers.onScheduleHook(ThreadContext.class.getName(), runnable -> {
-                ThreadContext context = ThreadContextHolder.get();
-                return () -> {
-                    ThreadContextHolder.set(context);
-                    try {
-                        runnable.run();
-                    } finally {
-                        ThreadContextHolder.remove();
-                    }
-                };
-            });
+            ReactorHookRegistrant.registerThreadLocalSupport();
         }
     }
 }

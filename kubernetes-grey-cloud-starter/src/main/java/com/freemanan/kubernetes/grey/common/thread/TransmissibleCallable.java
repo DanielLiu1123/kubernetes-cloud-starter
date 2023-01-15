@@ -6,18 +6,18 @@ import java.util.concurrent.Callable;
 /**
  * @author Freeman
  */
-public class TransferableCallable<V> implements Callable<V> {
+public class TransmissibleCallable<V> implements Callable<V> {
 
     private final Callable<V> callable;
     private final ThreadContext threadContext;
 
-    public TransferableCallable(Callable<V> callable) {
+    public TransmissibleCallable(Callable<V> callable) {
         this.callable = callable;
         this.threadContext = ThreadContextHolder.get();
     }
 
     public static <V> Callable<V> wrap(Callable<V> callable) {
-        return new TransferableCallable<>(callable);
+        return new TransmissibleCallable<>(callable);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class TransferableCallable<V> implements Callable<V> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TransferableCallable<?> that = (TransferableCallable<?>) o;
+        TransmissibleCallable<?> that = (TransmissibleCallable<?>) o;
         return Objects.equals(callable, that.callable);
     }
 

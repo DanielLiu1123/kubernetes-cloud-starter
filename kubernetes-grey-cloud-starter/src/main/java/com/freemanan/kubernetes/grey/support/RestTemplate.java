@@ -1,23 +1,24 @@
 package com.freemanan.kubernetes.grey.support;
 
-import com.freemanan.kubernetes.grey.KubernetesGreyProperties;
-import com.freemanan.kubernetes.grey.server.scg.GreyGlobalFilter;
+import com.freemanan.kubernetes.grey.client.resttemplate.GreyRestTemplateCustomizer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * @author Freeman
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnClass(GlobalFilter.class)
-public class SpringCloudGateway {
+@ConditionalOnClass(RestTemplateCustomizer.class)
+public class RestTemplate {
 
     @Bean
+    @Lazy
     @ConditionalOnMissingBean
-    public GreyGlobalFilter greyGlobalFilter(KubernetesGreyProperties properties) {
-        return new GreyGlobalFilter(properties);
+    public GreyRestTemplateCustomizer greyRestTemplateCustomizer() {
+        return new GreyRestTemplateCustomizer();
     }
 }

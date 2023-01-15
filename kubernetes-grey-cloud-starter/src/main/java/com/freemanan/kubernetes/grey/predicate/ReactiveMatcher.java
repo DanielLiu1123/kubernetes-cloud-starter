@@ -1,11 +1,11 @@
 package com.freemanan.kubernetes.grey.predicate;
 
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 
 /**
  * @author Freeman
  */
 public interface ReactiveMatcher {
 
-    boolean match(ServerWebExchange exchange);
+    boolean match(ServerHttpRequest request);
 }

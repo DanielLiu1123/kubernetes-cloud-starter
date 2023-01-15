@@ -7,7 +7,7 @@ data:
   pricing.yml: |
     fm:
       pricing:
-        price: 200
+        price: 199
     logging:
       level:
         com.freemanan.example.controller: info

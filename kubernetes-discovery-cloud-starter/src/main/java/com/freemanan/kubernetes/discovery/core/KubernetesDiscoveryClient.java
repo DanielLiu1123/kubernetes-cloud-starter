@@ -165,4 +165,16 @@ public class KubernetesDiscoveryClient implements DiscoveryClient {
             throw new RuntimeException(e);
         }
     }
+
+    // http://svc-a-feature-xx/api/order/1
+    //
+
+    // gateway, grey console.
+
+    // - svc-a
+    // - svc-a-feature-xx
+    // - svc-a-1
+    // - svc-a-2
+
+    //
 }
