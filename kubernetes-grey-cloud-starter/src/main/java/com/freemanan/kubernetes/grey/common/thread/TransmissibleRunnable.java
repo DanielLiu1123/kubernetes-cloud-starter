@@ -5,12 +5,12 @@ import java.util.Objects;
 /**
  * @author Freeman
  */
-public class TransmissibleRunnable implements Runnable {
+class TransmissibleRunnable implements Runnable {
 
     private final Runnable runnable;
     private final ThreadContext threadContext;
 
-    public TransmissibleRunnable(Runnable runnable) {
+    private TransmissibleRunnable(Runnable runnable) {
         this.runnable = runnable;
         this.threadContext = ThreadContextHolder.get();
     }

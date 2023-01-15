@@ -6,12 +6,12 @@ import java.util.concurrent.Callable;
 /**
  * @author Freeman
  */
-public class TransmissibleCallable<V> implements Callable<V> {
+class TransmissibleCallable<V> implements Callable<V> {
 
     private final Callable<V> callable;
     private final ThreadContext threadContext;
 
-    public TransmissibleCallable(Callable<V> callable) {
+    private TransmissibleCallable(Callable<V> callable) {
         this.callable = callable;
         this.threadContext = ThreadContextHolder.get();
     }
