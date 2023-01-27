@@ -9,11 +9,10 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * @author Freeman
- * @since 2022/12/16
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(KubernetesClient.class)
-public class KubernetesClientAutoConfiguration implements DisposableBean {
+public class KubernetesClientConfiguration implements DisposableBean {
 
     @Bean
     @ConditionalOnMissingBean
@@ -22,7 +21,7 @@ public class KubernetesClientAutoConfiguration implements DisposableBean {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         KubernetesClientHolder.remove();
     }
 }

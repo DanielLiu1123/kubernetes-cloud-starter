@@ -1,6 +1,6 @@
 package com.freemanan.kubernetes.discovery;
 
-import com.freemanan.kubernetes.commons.KubernetesClientAutoConfiguration;
+import com.freemanan.kubernetes.commons.KubernetesClientConfiguration;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -35,6 +35,6 @@ class DiscoveryIntegrationTests {
     }
 
     @SpringBootApplication
-    @ImportAutoConfiguration(KubernetesClientAutoConfiguration.class)
+    @ImportAutoConfiguration(KubernetesClientConfiguration.class)
     static class Config {}
 }

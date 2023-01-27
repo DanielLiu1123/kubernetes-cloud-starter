@@ -1,6 +1,5 @@
 package com.freemanan.kubernetes.grey;
 
-import com.freemanan.kubernetes.commons.KubernetesClientAutoConfiguration;
 import com.freemanan.kubernetes.grey.common.thread.ReactorHookRegistrant;
 import com.freemanan.kubernetes.grey.support.OpenFeign;
 import com.freemanan.kubernetes.grey.support.RestTemplate;
@@ -10,7 +9,7 @@ import com.freemanan.kubernetes.grey.support.WebFlux;
 import com.freemanan.kubernetes.grey.support.WebMvc;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -21,10 +20,9 @@ import reactor.core.publisher.Mono;
 /**
  * @author Freeman
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnClass(KubernetesClient.class)
 @ConditionalOnProperty(prefix = KubernetesGreyProperties.PREFIX, name = "enabled", matchIfMissing = true)
-@AutoConfigureAfter(KubernetesClientAutoConfiguration.class)
 @EnableConfigurationProperties(KubernetesGreyProperties.class)
 public class KubernetesGreyAutoConfiguration {
 

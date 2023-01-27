@@ -28,6 +28,7 @@ public class GreyOncePerRequestFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String greyVersion = request.getHeader(GreyConst.HEADER_GREY_VERSION);
         if (!StringUtils.hasText(greyVersion)) {
+            filterChain.doFilter(request, response);
             return;
         }
         List<Grey> greys;
@@ -36,6 +37,7 @@ public class GreyOncePerRequestFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             // Json parse error, don't fail the request, but can't do grey
             log.warn("Grey header Json parse error, value: {}", greyVersion);
+            filterChain.doFilter(request, response);
             return;
         }
         ThreadContext tc = new ThreadContext();
