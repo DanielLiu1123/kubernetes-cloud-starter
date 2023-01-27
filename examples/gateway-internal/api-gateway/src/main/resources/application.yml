@@ -1,0 +1,16 @@
+server:
+  port: 9999
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: user
+          uri: http://user:8080
+          predicates:
+            - Path=/v*/user/**
+        - id: pet
+          uri: http://pet:8081
+          predicates:
+            - Path=/v*/pet/**

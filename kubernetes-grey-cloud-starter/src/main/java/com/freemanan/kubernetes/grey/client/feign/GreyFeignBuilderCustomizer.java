@@ -5,7 +5,6 @@ import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 
 /**
  * @author Freeman
- * @since 2023/1/12
  */
 public class GreyFeignBuilderCustomizer implements FeignBuilderCustomizer {
     @Override

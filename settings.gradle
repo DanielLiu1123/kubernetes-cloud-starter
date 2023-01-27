@@ -8,3 +8,8 @@ include(':kubernetes-grey-cloud-starter')
 // examples
 include(':examples:kubernetes-config')
 include(':examples:kubernetes-grey-scg')
+include(':examples:gateway-internal:user')
+include(':examples:gateway-internal:pet:pet-api')
+include(':examples:gateway-internal:pet:pet-server')
+include(':examples:gateway-internal:gateway')
+include(':examples:gateway-internal:api-gateway')

@@ -43,14 +43,14 @@ public class GreyClient implements Client {
         if (Objects.equals(origin, newUri)) {
             return delegate.execute(request, options);
         }
-        Request newRequest = copyRequest(request, newUri);
+        Request newRequest = copyRequestWithNewUri(request, newUri);
         if (log.isDebugEnabled()) {
             log.debug("[Grey] origin: {}, new: {}", origin, newUri);
         }
         return delegate.execute(newRequest, options);
     }
 
-    private static Request copyRequest(Request request, URI newUri) {
+    private static Request copyRequestWithNewUri(Request request, URI newUri) {
         return Request.create(
                 request.httpMethod(),
                 newUri.toString(),
