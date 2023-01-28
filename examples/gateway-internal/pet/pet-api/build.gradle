@@ -1,11 +1,16 @@
 plugins {
     id 'java'
     id 'io.spring.dependency-management'
-    id 'org.springframework.boot'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+    }
 }
 
 dependencies {
-    compileOnly(platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"))
     compileOnly("org.springframework.cloud:spring-cloud-starter-openfeign")
 
     compileOnly("org.projectlombok:lombok")

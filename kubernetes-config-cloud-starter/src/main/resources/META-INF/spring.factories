@@ -1,2 +1,4 @@
 org.springframework.boot.env.EnvironmentPostProcessor=\
   com.freemanan.kubernetes.config.core.ConfigEnvironmentPostProcessor
+org.springframework.boot.diagnostics.FailureAnalyzer=\
+  com.freemanan.kubernetes.config.core.ConfigMissingException.ConfigMissingFailureAnalyzer

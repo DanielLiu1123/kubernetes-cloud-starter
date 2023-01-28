@@ -34,6 +34,12 @@ public class KubernetesConfigProperties {
      */
     private boolean refreshOnDelete = false;
 
+    /**
+     * Whether to fail when the config (configmap/secret) is missing, default value is {@code true}.
+     * <p> The default value is true to prevent unintended problems caused by not synchronizing the configuration between environments.
+     */
+    private boolean failOnMissingConfig = true;
+
     private List<ConfigMap> configMaps = new ArrayList<>();
 
     private List<Secret> secrets = new ArrayList<>();
@@ -99,16 +105,12 @@ public class KubernetesConfigProperties {
         this.refreshOnDelete = refreshOnDelete;
     }
 
-    @Override
-    public String toString() {
-        return "KubernetesConfigProperties{" + "enabled="
-                + enabled + ", defaultNamespace='"
-                + namespace + '\'' + ", preference="
-                + preference + ", refreshOnDelete="
-                + refreshOnDelete + ", configMaps="
-                + configMaps + ", secrets="
-                + secrets + ", refreshEnabled="
-                + refreshEnabled + '}';
+    public boolean isFailOnMissingConfig() {
+        return failOnMissingConfig;
+    }
+
+    public void setFailOnMissingConfig(boolean failOnMissingConfig) {
+        this.failOnMissingConfig = failOnMissingConfig;
     }
 
     @Override
@@ -118,6 +120,7 @@ public class KubernetesConfigProperties {
         KubernetesConfigProperties that = (KubernetesConfigProperties) o;
         return enabled == that.enabled
                 && refreshOnDelete == that.refreshOnDelete
+                && failOnMissingConfig == that.failOnMissingConfig
                 && refreshEnabled == that.refreshEnabled
                 && Objects.equals(namespace, that.namespace)
                 && preference == that.preference
@@ -127,7 +130,28 @@ public class KubernetesConfigProperties {
 
     @Override
     public int hashCode() {
-        return Objects.hash(enabled, namespace, preference, refreshOnDelete, configMaps, secrets, refreshEnabled);
+        return Objects.hash(
+                enabled,
+                namespace,
+                preference,
+                refreshOnDelete,
+                failOnMissingConfig,
+                configMaps,
+                secrets,
+                refreshEnabled);
+    }
+
+    @Override
+    public String toString() {
+        return "KubernetesConfigProperties{" + "enabled="
+                + enabled + ", namespace='"
+                + namespace + '\'' + ", preference="
+                + preference + ", refreshOnDelete="
+                + refreshOnDelete + ", failOnMissingConfig="
+                + failOnMissingConfig + ", configMaps="
+                + configMaps + ", secrets="
+                + secrets + ", refreshEnabled="
+                + refreshEnabled + '}';
     }
 
     public static class ConfigMap {

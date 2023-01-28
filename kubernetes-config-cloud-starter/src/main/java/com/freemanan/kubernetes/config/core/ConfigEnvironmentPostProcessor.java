@@ -132,9 +132,16 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
         if (configMap == null) {
             log.warn(String.format(
                     "ConfigMap '%s' not found in namespace '%s'", cm.getName(), namespace(cm, properties)));
+            failApplicationStartUpIfNecessary(properties);
             return null;
         }
         return toPropertySource(configMap);
+    }
+
+    private static void failApplicationStartUpIfNecessary(KubernetesConfigProperties properties) {
+        if (properties.isFailOnMissingConfig()) {
+            throw new ConfigMissingException();
+        }
     }
 
     private EnumerablePropertySource<?> propertySourceForSecret(
@@ -149,6 +156,7 @@ public class ConfigEnvironmentPostProcessor implements EnvironmentPostProcessor,
         if (secretInK8s == null) {
             log.warn(String.format(
                     "Secret '%s' not found in namespace '%s'", secret.getName(), namespace(secret, properties)));
+            failApplicationStartUpIfNecessary(properties);
             return null;
         }
         return toPropertySource(secretInK8s);

@@ -1,0 +1,12 @@
+microservice-base:
+  kubernetes:
+    config:
+      namespace: default
+      configmaps:
+        - name: missing-configmap
+spring:
+  application:
+    name: missing-config
+logging:
+  level:
+    com.freemanan.kubernetes.config: debug
