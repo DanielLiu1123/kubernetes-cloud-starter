@@ -2,7 +2,7 @@ package com.freemanan.kubernetes.grey.common.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.freemanan.kubernetes.commons.KubernetesUtil;
+import com.freemanan.kubernetes.commons.K8s;
 import com.freemanan.kubernetes.grey.common.Destination;
 import com.freemanan.kubernetes.grey.common.Grey;
 import java.net.URI;
@@ -123,7 +123,7 @@ class GreyUtilTest {
     void testNamespace() throws Exception {
         assertThat(GreyUtil.namespace(new URI("https://example.com/"))).isEqualTo("com");
         assertThat(GreyUtil.namespace(new URI("https://example.com.xx/"))).isEqualTo("com");
-        assertThat(GreyUtil.namespace(new URI("https://example/"))).isEqualTo(KubernetesUtil.currentNamespace());
+        assertThat(GreyUtil.namespace(new URI("https://example/"))).isEqualTo(K8s.currentNamespace());
     }
 
     /**

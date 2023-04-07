@@ -1,6 +1,6 @@
 package com.freemanan.kubernetes.config;
 
-import com.freemanan.kubernetes.commons.KubernetesUtil;
+import com.freemanan.kubernetes.commons.K8s;
 import com.freemanan.kubernetes.config.util.ConfigPreference;
 import java.util.ArrayList;
 import java.util.List;
@@ -308,6 +308,6 @@ public class KubernetesConfigProperties {
     }
 
     private static String determineNamespace() {
-        return KubernetesUtil.currentNamespace();
+        return K8s.currentNamespace();
     }
 }

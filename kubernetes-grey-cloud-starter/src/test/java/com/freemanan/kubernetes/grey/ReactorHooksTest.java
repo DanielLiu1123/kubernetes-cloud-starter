@@ -2,7 +2,7 @@ package com.freemanan.kubernetes.grey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
+import com.freemanan.kubernetes.grey.common.thread.Context;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
@@ -64,7 +64,7 @@ public class ReactorHooksTest {
 
     private static void doInHook(Runnable action) {
         // register hook
-        Schedulers.onScheduleHook(ThreadContext.class.getName(), runnable -> {
+        Schedulers.onScheduleHook(Context.class.getName(), runnable -> {
             String userId = USER_ID.get();
             return () -> {
                 USER_ID.set(userId);
@@ -80,6 +80,6 @@ public class ReactorHooksTest {
         action.run();
 
         // remove hook
-        Schedulers.resetOnScheduleHook(ThreadContext.class.getName());
+        Schedulers.resetOnScheduleHook(Context.class.getName());
     }
 }

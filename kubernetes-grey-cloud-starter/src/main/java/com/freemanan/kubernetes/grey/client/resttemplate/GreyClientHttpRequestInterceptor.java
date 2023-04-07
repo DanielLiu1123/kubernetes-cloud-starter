@@ -2,7 +2,7 @@ package com.freemanan.kubernetes.grey.client.resttemplate;
 
 import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
+import com.freemanan.kubernetes.grey.common.thread.Context;
 import com.freemanan.kubernetes.grey.common.util.GreyUtil;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import java.io.IOException;
@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -26,12 +27,15 @@ public class GreyClientHttpRequestInterceptor implements ClientHttpRequestInterc
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
             throws IOException {
-        List<Grey> greys = ThreadContext.greys();
+        List<Grey> greys = Context.greys();
         if (greys == null || greys.isEmpty()) {
             return execution.execute(request, body);
         }
         // add header
-        request.getHeaders().add(GreyConst.HEADER_GREY_VERSION, JsonUtil.toJson(greys));
+        HttpHeaders headers = request.getHeaders();
+        if (!headers.containsKey(GreyConst.HEADER_GREY_VERSION)) {
+            headers.add(GreyConst.HEADER_GREY_VERSION, JsonUtil.toJson(greys));
+        }
         // change url if needed
         URI origin = request.getURI();
         URI newUri = GreyUtil.grey(origin, greys);

@@ -1,6 +1,6 @@
 package com.freemanan.kubernetes.config.testsupport;
 
-import com.freemanan.kubernetes.commons.KubernetesUtil;
+import com.freemanan.kubernetes.commons.K8s;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -12,7 +12,7 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class KubernetesTestUtil {
 
-    static KubernetesClient cli = KubernetesUtil.newKubernetesClient();
+    static KubernetesClient cli = K8s.newKubernetesClient();
 
     public static ConfigMap configMap(String classpathFile) {
         try {

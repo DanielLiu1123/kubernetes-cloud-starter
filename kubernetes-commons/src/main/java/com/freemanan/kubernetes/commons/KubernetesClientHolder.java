@@ -14,15 +14,16 @@ public class KubernetesClientHolder {
 
     private static final AtomicReference<KubernetesClient> kubernetesClient = new AtomicReference<>();
 
-    public static synchronized KubernetesClient getKubernetesClient() {
+    public static KubernetesClient getKubernetesClient() {
         KubernetesClient client = kubernetesClient.get();
-        if (client == null) {
-            kubernetesClient.set(KubernetesUtil.newKubernetesClient());
+        if (client != null) {
+            return client;
         }
+        kubernetesClient.compareAndSet(null, K8s.newKubernetesClient());
         return kubernetesClient.get();
     }
 
-    public static synchronized void remove() {
+    public static void remove() {
         kubernetesClient.set(null);
     }
 }

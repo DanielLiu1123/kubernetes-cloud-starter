@@ -1,9 +1,10 @@
 package com.freemanan.kubernetes.grey.client.resttemplate;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.freemanan.kubernetes.grey.client.Util;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
+import com.freemanan.kubernetes.grey.common.thread.Context;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.system.CapturedOutput;
@@ -16,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 class RestTemplateTest {
     @Test
     void testGrey(CapturedOutput output) {
-        ThreadContextHolder.set(Util.threadContext());
+        Context.set(Util.threadContext());
 
         RestTemplate restTemplate = new RestTemplateBuilder()
                 .customizers(new GreyRestTemplateCustomizer())
@@ -26,7 +27,7 @@ class RestTemplateTest {
                 .isThrownBy(() ->
                         restTemplate.getForObject("https://master.default:8080/typicode/demo/posts/1", String.class));
 
-        ThreadContextHolder.remove();
+        Context.remove();
 
         assertThat(output)
                 .contains(

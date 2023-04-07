@@ -1,11 +1,17 @@
 package com.freemanan.kubernetes.grey.common;
 
-import com.freemanan.kubernetes.commons.KubernetesUtil;
+import com.freemanan.kubernetes.commons.K8s;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author Freeman
  */
+@Getter
+@Setter
+@ToString
 public class Destination {
     private String service;
     /**
@@ -13,7 +19,7 @@ public class Destination {
      * <p> If not in Kubernetes, use kubeconfig current context namespace.
      * <p> If in Kubernetes, use pod namespace.
      */
-    private String namespace = KubernetesUtil.currentNamespace();
+    private String namespace = K8s.currentNamespace();
     /**
      * Service port.
      * <p> Default value is null, means forwarding requests for all ports.
@@ -21,38 +27,6 @@ public class Destination {
     private Integer port;
 
     private Double weight;
-
-    public String getService() {
-        return service;
-    }
-
-    public void setService(String service) {
-        this.service = service;
-    }
-
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
-
-    public Integer getPort() {
-        return port;
-    }
-
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    public Double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Double weight) {
-        this.weight = weight;
-    }
 
     // We only need to compare service, namespace and port.
 
@@ -69,15 +43,6 @@ public class Destination {
     @Override
     public int hashCode() {
         return Objects.hash(service, namespace, port);
-    }
-
-    @Override
-    public String toString() {
-        return "Destination{" + "service='"
-                + service + '\'' + ", namespace='"
-                + namespace + '\'' + ", port="
-                + port + ", weight="
-                + weight + '}';
     }
 
     public void validate() {

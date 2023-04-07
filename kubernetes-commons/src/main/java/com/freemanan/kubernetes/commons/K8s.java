@@ -2,17 +2,16 @@ package com.freemanan.kubernetes.commons;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import java.util.Optional;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 
 /**
  * @author Freeman
  */
-public final class KubernetesUtil {
+public final class K8s {
 
-    private KubernetesUtil() {
-        throw new UnsupportedOperationException("No KubernetesUtil instances for you!");
+    private K8s() {
+        throw new UnsupportedOperationException("No K8s instances for you!");
     }
 
     private static final Config config = new ConfigBuilder().build();
@@ -22,7 +21,8 @@ public final class KubernetesUtil {
     }
 
     public static String currentNamespace() {
-        return Optional.ofNullable(config.getNamespace()).orElse("default");
+        String namespace = config.getNamespace();
+        return namespace != null ? namespace : "default";
     }
 
     /**
@@ -31,6 +31,6 @@ public final class KubernetesUtil {
      * @return new KubernetesClient instance
      */
     public static KubernetesClient newKubernetesClient() {
-        return new DefaultKubernetesClient(config);
+        return new KubernetesClientBuilder().withConfig(config).build();
     }
 }

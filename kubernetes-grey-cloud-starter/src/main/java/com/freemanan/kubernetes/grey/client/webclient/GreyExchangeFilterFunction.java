@@ -2,7 +2,7 @@ package com.freemanan.kubernetes.grey.client.webclient;
 
 import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
+import com.freemanan.kubernetes.grey.common.thread.Context;
 import com.freemanan.kubernetes.grey.common.util.GreyUtil;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import java.net.URI;
@@ -24,7 +24,7 @@ public class GreyExchangeFilterFunction implements ExchangeFilterFunction {
 
     @Override
     public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-        List<Grey> greys = ThreadContext.greys();
+        List<Grey> greys = Context.greys();
         if (greys == null || greys.isEmpty()) {
             return next.exchange(request);
         }
