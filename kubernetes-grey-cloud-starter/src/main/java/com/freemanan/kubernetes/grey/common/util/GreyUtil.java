@@ -1,6 +1,6 @@
 package com.freemanan.kubernetes.grey.common.util;
 
-import com.freemanan.kubernetes.commons.KubernetesUtil;
+import com.freemanan.kubernetes.commons.K8s;
 import com.freemanan.kubernetes.grey.common.Destination;
 import com.freemanan.kubernetes.grey.common.Grey;
 import java.net.URI;
@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import lombok.experimental.UtilityClass;
 
 /**
  * @author Freeman
  */
-public final class GreyUtil {
+@UtilityClass
+public class GreyUtil {
     private static final Random random = new Random();
 
     /**
@@ -146,7 +148,7 @@ public final class GreyUtil {
         if (arr.length >= 2) {
             return arr[1];
         }
-        return KubernetesUtil.currentNamespace();
+        return K8s.currentNamespace();
     }
 
     static String service(URI uri) {

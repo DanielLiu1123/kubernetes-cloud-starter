@@ -2,7 +2,7 @@ package com.freemanan.kubernetes.grey.client.feign;
 
 import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
+import com.freemanan.kubernetes.grey.common.thread.Context;
 import com.freemanan.kubernetes.grey.common.util.GreyUtil;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import feign.Client;
@@ -29,7 +29,7 @@ public class GreyClient implements Client {
 
     @Override
     public Response execute(Request request, Request.Options options) throws IOException {
-        List<Grey> greys = ThreadContext.greys();
+        List<Grey> greys = Context.greys();
         if (greys == null || greys.isEmpty()) {
             return delegate.execute(request, options);
         }

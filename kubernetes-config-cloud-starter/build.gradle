@@ -5,6 +5,7 @@ dependencies {
     compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
 
     api(project(":kubernetes-commons"))
+    api("org.springframework.cloud:spring-cloud-starter")
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
@@ -12,4 +13,4 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-apply from: "${rootProject.projectDir}/deploy.gradle"
+apply from: "${rootDir}/deploy.gradle"

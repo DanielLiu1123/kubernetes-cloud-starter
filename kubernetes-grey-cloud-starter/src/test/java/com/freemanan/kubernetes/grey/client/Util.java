@@ -2,7 +2,7 @@ package com.freemanan.kubernetes.grey.client;
 
 import com.freemanan.kubernetes.grey.common.Destination;
 import com.freemanan.kubernetes.grey.common.Grey;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
+import com.freemanan.kubernetes.grey.common.thread.Context;
 import java.util.List;
 
 /**
@@ -10,9 +10,7 @@ import java.util.List;
  */
 public class Util {
 
-    public static ThreadContext threadContext() {
-        ThreadContext tc = new ThreadContext();
-
+    public static Context threadContext() {
         Grey grey = new Grey();
 
         Destination master = new Destination();
@@ -28,7 +26,6 @@ public class Util {
         grey.setMaster(master);
         grey.setFeatures(List.of(slave));
 
-        tc.setGreys(List.of(grey));
-        return tc;
+        return new Context(List.of(grey));
     }
 }

@@ -3,8 +3,7 @@ package com.freemanan.kubernetes.grey.server.webflux;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
+import com.freemanan.kubernetes.grey.common.thread.Context;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import java.util.List;
 import org.slf4j.Logger;
@@ -34,16 +33,14 @@ public class GreyWebFilter implements WebFilter {
             greys = JsonUtil.toBean(greyVersion, new TypeReference<List<Grey>>() {});
         } catch (Exception e) {
             // Json parse error, don't fail the request, but can't do grey
-            log.warn("Grey header Json parse error, value: {}", greyVersion);
+            log.warn("Grey header JSON parse error, value: {}", greyVersion);
             return chain.filter(exchange);
         }
-        ThreadContext tc = new ThreadContext();
-        tc.setGreys(greys);
-        ThreadContextHolder.set(tc);
+        Context.set(new Context(greys));
         try {
             return chain.filter(exchange);
         } finally {
-            ThreadContextHolder.remove();
+            Context.remove();
         }
     }
 }

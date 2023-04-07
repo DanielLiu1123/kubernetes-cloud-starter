@@ -3,8 +3,7 @@ package com.freemanan.kubernetes.grey.server.webmvc;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContext;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
+import com.freemanan.kubernetes.grey.common.thread.Context;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,17 +35,15 @@ public class GreyOncePerRequestFilter extends OncePerRequestFilter {
             greys = JsonUtil.toBean(greyVersion, new TypeReference<List<Grey>>() {});
         } catch (Exception e) {
             // Json parse error, don't fail the request, but can't do grey
-            log.warn("Grey header Json parse error, value: {}", greyVersion);
+            log.warn("Grey header JSON parse error, value: {}", greyVersion);
             filterChain.doFilter(request, response);
             return;
         }
-        ThreadContext tc = new ThreadContext();
-        tc.setGreys(greys);
-        ThreadContextHolder.set(tc);
+        Context.set(new Context(greys));
         try {
             filterChain.doFilter(request, response);
         } finally {
-            ThreadContextHolder.remove();
+            Context.remove();
         }
     }
 }

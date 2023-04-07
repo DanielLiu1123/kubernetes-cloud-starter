@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.web.reactive.function.client.WebClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
 /**
@@ -16,6 +17,7 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 public class WebClient {
 
     @Bean
+    @Lazy
     @ConditionalOnMissingBean
     public GreyWebClientCustomizer greyWebClientCustomizer() {
         return new GreyWebClientCustomizer();

@@ -2,7 +2,7 @@ package com.freemanan.kubernetes.discovery;
 
 import static com.freemanan.kubernetes.discovery.KubernetesDiscoveryProperties.PREFIX;
 
-import com.freemanan.kubernetes.commons.KubernetesUtil;
+import com.freemanan.kubernetes.commons.K8s;
 import java.util.Collections;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -15,7 +15,7 @@ public class KubernetesDiscoveryProperties {
     public static final String PREFIX = "microservice-base.kubernetes.discovery";
 
     private boolean enabled = true;
-    private List<String> namespaces = Collections.singletonList(KubernetesUtil.currentNamespace());
+    private List<String> namespaces = Collections.singletonList(K8s.currentNamespace());
     private List<String> patterns = Collections.singletonList(".*");
 
     public boolean isEnabled() {

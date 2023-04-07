@@ -10,7 +10,11 @@ dependencies {
     compileOnly "org.springframework.cloud:spring-cloud-starter-gateway"
     compileOnly "org.springframework.cloud:spring-cloud-starter-openfeign"
     compileOnly "com.squareup.okhttp3:okhttp"
+    api("com.fasterxml.jackson.core:jackson-databind")
+    api("com.alibaba:transmittable-thread-local:2.14.2")
 
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     // test
@@ -21,4 +25,4 @@ dependencies {
     testImplementation "org.springframework.cloud:spring-cloud-starter-openfeign"
 }
 
-apply from: "${rootProject.projectDir}/deploy.gradle"
+apply from: "${rootDir}/deploy.gradle"

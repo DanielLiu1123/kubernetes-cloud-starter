@@ -1,9 +1,10 @@
 package com.freemanan.kubernetes.grey.client.feign;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.freemanan.kubernetes.grey.client.Util;
-import com.freemanan.kubernetes.grey.common.thread.ThreadContextHolder;
+import com.freemanan.kubernetes.grey.common.thread.Context;
 import feign.RetryableException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,12 +31,12 @@ public class FeignTest {
         ConfigurableApplicationContext ctx = new SpringApplicationBuilder(Config.class)
                 .properties("logging.level.com.freemanan.kubernetes.grey=debug")
                 .run();
-        ThreadContextHolder.set(Util.threadContext());
+        Context.set(Util.threadContext());
 
         FeignApi postApi = ctx.getBean(FeignApi.class);
         assertThatExceptionOfType(RetryableException.class).isThrownBy(() -> postApi.getPost(1));
 
-        ThreadContextHolder.remove();
+        Context.remove();
         ctx.close();
 
         assertThat(output)

@@ -40,7 +40,7 @@ public class KubernetesGreyAutoConfiguration {
 
         @Override
         public void afterPropertiesSet() {
-            ReactorHookRegistrant.registerThreadLocalSupport();
+            ReactorHookRegistrant.registerThreadLocalSupport4TTL();
         }
     }
 }

@@ -5,6 +5,7 @@ dependencies {
     compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
 
     api(project(':kubernetes-commons'))
+    api("org.springframework.cloud:spring-cloud-starter")
 
     compileOnly "org.springframework.cloud:spring-cloud-starter-loadbalancer"
 
@@ -14,4 +15,4 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-apply from: "${rootProject.projectDir}/deploy.gradle"
+apply from: "${rootDir}/deploy.gradle"
