@@ -7,7 +7,7 @@ dependencies {
     api(project(':kubernetes-commons'))
     api("org.springframework.cloud:spring-cloud-starter")
 
-    compileOnly "org.springframework.cloud:spring-cloud-starter-loadbalancer"
+    optionalApi "org.springframework.cloud:spring-cloud-starter-loadbalancer"
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 

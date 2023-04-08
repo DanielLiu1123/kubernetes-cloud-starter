@@ -7,6 +7,11 @@ plugins {
 
 subprojects {
     apply plugin: 'java-library'
+    java {
+        registerFeature("optional") {
+            usingSourceSet(sourceSets.main)
+        }
+    }
     repositories {
         mavenLocal()
         mavenCentral()
@@ -34,6 +39,6 @@ subprojects {
     apply plugin: 'com.github.spotbugs'
     spotbugs {
         spotbugsTest.enabled = false
-        omitVisitors = ['FindReturnRef', 'MethodReturnCheck']
+        omitVisitors.addAll 'FindReturnRef', 'MethodReturnCheck'
     }
 }

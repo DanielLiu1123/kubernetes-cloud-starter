@@ -3,8 +3,11 @@ package com.freemanan.kubernetes.grey.common.util;
 import com.freemanan.kubernetes.commons.K8s;
 import com.freemanan.kubernetes.grey.common.Destination;
 import com.freemanan.kubernetes.grey.common.Grey;
+import com.freemanan.kubernetes.grey.common.Target;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
@@ -57,6 +60,41 @@ public class GreyUtil {
         return Optional.ofNullable(getMathchedGrey(uri, greys))
                 .map(grey -> grey(uri, grey))
                 .orElse(uri);
+    }
+
+    public static URI grey(URI uri, Map<String, List<Target>> mapping) {
+        String authority = uri.getAuthority();
+        List<Target> targets = mapping.getOrDefault(authority, Collections.emptyList());
+        if (targets.isEmpty()) {
+            return uri;
+        }
+
+        // 计算总权重
+        double total = targets.stream().mapToDouble(Target::weight).sum();
+        if (total < 100) {
+            targets.add(new Target(authority, 100 - total));
+            total = 100;
+        }
+
+        // 随机选择一个 Target
+        double randomWeight = random.nextDouble() * total;
+        double weight = 0;
+        for (Target target : targets) {
+            weight += target.weight();
+            if (randomWeight <= weight) {
+                return replaceAuthority(uri, target.address());
+            }
+        }
+        return uri;
+    }
+
+    private static URI replaceAuthority(URI uri, String newAuthority) {
+        String oldAuthority = uri.getAuthority();
+        if (Objects.equals(oldAuthority, newAuthority)) {
+            return uri;
+        }
+        String newUri = uri.toString().replaceFirst(oldAuthority, newAuthority);
+        return URI.create(newUri);
     }
 
     private static double getMasterWeight(Grey grey) {

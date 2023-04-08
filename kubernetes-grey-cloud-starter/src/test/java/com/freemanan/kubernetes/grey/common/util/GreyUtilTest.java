@@ -1,5 +1,11 @@
 package com.freemanan.kubernetes.grey.common.util;
 
+import static com.freemanan.kubernetes.grey.common.util.GreyUtil.grey;
+import static com.freemanan.kubernetes.grey.common.util.GreyUtil.greyUri;
+import static com.freemanan.kubernetes.grey.common.util.GreyUtil.host;
+import static com.freemanan.kubernetes.grey.common.util.GreyUtil.namespace;
+import static com.freemanan.kubernetes.grey.common.util.GreyUtil.port;
+import static com.freemanan.kubernetes.grey.common.util.GreyUtil.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.freemanan.kubernetes.commons.K8s;
@@ -36,7 +42,7 @@ class GreyUtilTest {
         grey.setFeatures(Arrays.asList(destination));
 
         // Run the test
-        final URI result = GreyUtil.grey(new URI("https://example.com/"), grey);
+        final URI result = grey(new URI("https://example.com/"), grey);
 
         // Verify the results
         assertThat(result).isEqualTo(new URI("https://service.namespace/"));
@@ -69,7 +75,7 @@ class GreyUtilTest {
 
         // Run the test
         IntStream.range(0, 20).forEach(value -> {
-            final URI result = GreyUtil.grey(URI.create("https://example.com/"), grey);
+            final URI result = grey(URI.create("https://example.com/"), grey);
             System.out.println(result);
         });
     }
@@ -84,7 +90,7 @@ class GreyUtilTest {
         destination.setNamespace("namespace");
         destination.setPort(null);
         destination.setWeight(null);
-        URI result = GreyUtil.greyUri(destination, new URI("https://example.com/"));
+        URI result = greyUri(destination, new URI("https://example.com/"));
 
         assertThat(result).isEqualTo(new URI("https://service.namespace/"));
 
@@ -93,7 +99,7 @@ class GreyUtilTest {
         destination.setNamespace("namespace");
         destination.setPort(8080);
         destination.setWeight(null);
-        result = GreyUtil.greyUri(destination, new URI("https://example.com:433/"));
+        result = greyUri(destination, new URI("https://example.com:433/"));
 
         assertThat(result).isEqualTo(new URI("https://service.namespace:8080/"));
 
@@ -102,7 +108,7 @@ class GreyUtilTest {
         destination.setNamespace("namespace");
         destination.setPort(8080);
         destination.setWeight(null);
-        result = GreyUtil.greyUri(destination, new URI("https://example.com/"));
+        result = greyUri(destination, new URI("https://example.com/"));
 
         assertThat(result).isEqualTo(new URI("https://service.namespace/"));
 
@@ -111,7 +117,7 @@ class GreyUtilTest {
         destination.setNamespace("namespace");
         destination.setPort(null);
         destination.setWeight(null);
-        result = GreyUtil.greyUri(destination, new URI("https://example.com:8080/"));
+        result = greyUri(destination, new URI("https://example.com:8080/"));
 
         assertThat(result).isEqualTo(new URI("https://service.namespace:8080/"));
     }
@@ -121,9 +127,9 @@ class GreyUtilTest {
      */
     @Test
     void testNamespace() throws Exception {
-        assertThat(GreyUtil.namespace(new URI("https://example.com/"))).isEqualTo("com");
-        assertThat(GreyUtil.namespace(new URI("https://example.com.xx/"))).isEqualTo("com");
-        assertThat(GreyUtil.namespace(new URI("https://example/"))).isEqualTo(K8s.currentNamespace());
+        assertThat(namespace(new URI("https://example.com/"))).isEqualTo("com");
+        assertThat(namespace(new URI("https://example.com.xx/"))).isEqualTo("com");
+        assertThat(namespace(new URI("https://example/"))).isEqualTo(K8s.currentNamespace());
     }
 
     /**
@@ -131,10 +137,10 @@ class GreyUtilTest {
      */
     @Test
     void testService() throws Exception {
-        assertThat(GreyUtil.service(new URI("https://example.com/"))).isEqualTo("example");
-        assertThat(GreyUtil.service(new URI("https://example.com.xx/"))).isEqualTo("example");
-        assertThat(GreyUtil.service(new URI("https://example-a.com.xx/"))).isEqualTo("example-a");
-        assertThat(GreyUtil.service(new URI("https://example-a.com.xx:8080/"))).isEqualTo("example-a");
+        assertThat(service(new URI("https://example.com/"))).isEqualTo("example");
+        assertThat(service(new URI("https://example.com.xx/"))).isEqualTo("example");
+        assertThat(service(new URI("https://example-a.com.xx/"))).isEqualTo("example-a");
+        assertThat(service(new URI("https://example-a.com.xx:8080/"))).isEqualTo("example-a");
     }
 
     /**
@@ -142,9 +148,9 @@ class GreyUtilTest {
      */
     @Test
     void testHost() throws Exception {
-        assertThat(GreyUtil.host(new URI("https://example.com:8080/"))).isEqualTo("example.com");
-        assertThat(GreyUtil.host(new URI("https://example.com"))).isEqualTo("example.com");
-        assertThat(GreyUtil.host(new URI("https://example.com.xx"))).isEqualTo("example.com.xx");
+        assertThat(host(new URI("https://example.com:8080/"))).isEqualTo("example.com");
+        assertThat(host(new URI("https://example.com"))).isEqualTo("example.com");
+        assertThat(host(new URI("https://example.com.xx"))).isEqualTo("example.com.xx");
     }
 
     /**
@@ -152,8 +158,15 @@ class GreyUtilTest {
      */
     @Test
     void testPort() throws Exception {
-        assertThat(GreyUtil.port(new URI("https://example.com:8080/"))).isEqualTo(8080);
-        assertThat(GreyUtil.port(new URI("http://example.com"))).isEqualTo(null);
-        assertThat(GreyUtil.port(new URI("https://example.com.xx"))).isEqualTo(null);
+        assertThat(port(new URI("https://example.com:8080/"))).isEqualTo(8080);
+        assertThat(port(new URI("http://example.com"))).isEqualTo(null);
+        assertThat(port(new URI("https://example.com.xx"))).isEqualTo(null);
+    }
+
+    @Test
+    void testGetAuthority() {
+        assertThat(URI.create("https://example.com:8080/xxx").getAuthority()).isEqualTo("example.com:8080");
+        assertThat(URI.create("http://example.com/xx").getAuthority()).isEqualTo("example.com");
+        assertThat(URI.create("http://example/").getAuthority()).isEqualTo("example");
     }
 }

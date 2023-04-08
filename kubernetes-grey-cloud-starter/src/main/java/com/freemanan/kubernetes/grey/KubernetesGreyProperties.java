@@ -12,6 +12,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
+ * {"condition": "#header['user-id'] > 1000", "order": 0, "rules": {"svc.ns:8080": [{"target":"svc-v-v1.ns:8080", "weight":30}, {"target":"svc-v-v2.ns:8080", "weight":50}]}}
+ * {"condition": "#header['grey-name'] = 'v'", "order": 1, "rules": {"svc.ns:8080": [{"target":"svc-v-v1.ns:8080", "weight":30}, {"target":"svc-v-v2.ns:8080", "weight":50}]}}
+ *
  * @author Freeman
  */
 @Data
