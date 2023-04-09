@@ -1,13 +1,14 @@
 package com.freemanan.kubernetes.grey.client.resttemplate;
 
-import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
+import com.freemanan.kubernetes.grey.common.Target;
 import com.freemanan.kubernetes.grey.common.thread.Context;
 import com.freemanan.kubernetes.grey.common.util.GreyUtil;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +28,8 @@ public class GreyClientHttpRequestInterceptor implements ClientHttpRequestInterc
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
             throws IOException {
-        List<Grey> greys = Context.greys();
-        if (greys == null || greys.isEmpty()) {
+        Map<String, List<Target>> greys = Context.greys();
+        if (greys.isEmpty()) {
             return execution.execute(request, body);
         }
         // add header

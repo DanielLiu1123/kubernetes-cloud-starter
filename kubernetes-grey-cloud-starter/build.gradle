@@ -1,12 +1,8 @@
 dependencies {
-    api platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
-    annotationProcessor platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
-    api platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
-    compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
-
     api(project(':kubernetes-commons'))
 
     optionalApi "org.springframework.boot:spring-boot-starter-web"
+    optionalApi "org.springframework.boot:spring-boot-starter-webflux"
     optionalApi "org.springframework.cloud:spring-cloud-starter-gateway"
     optionalApi "org.springframework.cloud:spring-cloud-starter-openfeign"
     optionalApi "com.squareup.okhttp3:okhttp"
@@ -19,10 +15,6 @@ dependencies {
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-    testImplementation "org.springframework.boot:spring-boot-starter-web"
-    testImplementation "org.springframework:spring-webflux"
-    testImplementation "org.springframework.cloud:spring-cloud-starter-openfeign"
 }
 
 apply from: "${rootDir}/deploy.gradle"

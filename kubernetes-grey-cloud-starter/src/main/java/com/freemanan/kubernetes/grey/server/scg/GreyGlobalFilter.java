@@ -3,38 +3,34 @@ package com.freemanan.kubernetes.grey.server.scg;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.freemanan.kubernetes.grey.Ctx;
 import com.freemanan.kubernetes.grey.Grey;
 import com.freemanan.kubernetes.grey.GreyApi;
-import com.freemanan.kubernetes.grey.KubernetesGreyProperties;
 import com.freemanan.kubernetes.grey.common.GreyConst;
 import com.freemanan.kubernetes.grey.common.Target;
 import com.freemanan.kubernetes.grey.common.util.GreyUtil;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
-import com.freemanan.kubernetes.grey.predicate.ReactiveMatcher;
 import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.NettyRoutingFilter;
 import org.springframework.core.Ordered;
 import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.EvaluationException;
-import org.springframework.expression.ParseException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -49,97 +45,96 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
      */
     public static final int ORDER = NettyRoutingFilter.ORDER - 1;
 
-    private final KubernetesGreyProperties properties;
     private final GreyApi greyApi;
     private final SpelExpressionParser parser = new SpelExpressionParser();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        EvaluationContext ctx = new StandardEvaluationContext();
-        return greyApi.findAll().mapNotNull(greys -> firstMatch(ctx, greys)).flatMap(grey -> {
-            Map<String, List<Target>> ruleMap = JsonUtil.toBean(grey.rules(), new TypeReference<>() {});
-            ServerWebExchange.Builder builder = exchange.mutate();
-            // add header
-            if (!exchange.getRequest().getHeaders().containsKey(GreyConst.HEADER_GREY_VERSION)) {
-                builder.request(exchange.getRequest()
-                        .mutate()
-                        .headers(httpHeaders ->
-                                httpHeaders.add(GreyConst.HEADER_GREY_VERSION, JsonUtil.toJson(grey.rules())))
-                        .build());
-            }
-            // change url if needed
-            URI origin = exchange.getRequiredAttribute(GATEWAY_REQUEST_URL_ATTR);
-            URI newUri = GreyUtil.grey(origin, ruleMap);
-            if (Objects.equals(origin, newUri)) {
-                return chain.filter(builder.build());
-            }
-            builder.request(exchange.getRequest().mutate().uri(newUri).build());
-            // url depends on 'GATEWAY_REQUEST_URL_ATTR', see NettyRoutingFilter
-            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, newUri);
-            if (log.isDebugEnabled()) {
-                log.debug("[Grey] origin: {}, new: {}", origin, newUri);
-            }
-            return chain.filter(builder.build());
-        });
+        String greyVersion = exchange.getRequest().getHeaders().getFirst(GreyConst.HEADER_GREY_VERSION);
+        Mono<Map<String, List<Target>>> routeMap = StringUtils.hasText(greyVersion)
+                ? Mono.just(JsonUtil.toBean(greyVersion, new TypeReference<Map<String, List<Target>>>() {}))
+                : getMatchedRouteFromApi(exchange);
+
+        return routeMap.flatMap(rules -> {
+                    ServerWebExchange headerAdded = addGreyVersionHeader(exchange, rules);
+                    URI origin = exchange.getRequiredAttribute(GATEWAY_REQUEST_URL_ATTR);
+                    URI newUri = GreyUtil.grey(origin, rules);
+                    if (Objects.equals(origin, newUri)) {
+                        return chain.filter(headerAdded);
+                    }
+                    ServerWebExchange uriChanged = headerAdded
+                            .mutate()
+                            .request(headerAdded
+                                    .getRequest()
+                                    .mutate()
+                                    .uri(newUri)
+                                    .build())
+                            .build();
+                    uriChanged.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, newUri);
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                                "[Grey] origin: {}, new: {}",
+                                exchange.getRequest().getURI(),
+                                newUri);
+                    }
+                    return chain.filter(uriChanged);
+                })
+                // request grey gateway failed, fallback to normal request
+                .onErrorResume(WebClientRequestException.class, e -> {
+                    log.error("[Grey] Request grey gateway failed", e);
+                    return chain.filter(exchange);
+                })
+                // no matched grey rule, nothing to do
+                .switchIfEmpty(chain.filter(exchange));
     }
 
-    @Nullable
-    private Grey firstMatch(EvaluationContext ctx, List<Grey> greys) {
-        for (Grey grey : greys) {
-            try {
-                if (Boolean.TRUE.equals(parser.parseExpression(grey.predicate()).getValue(ctx, Boolean.class))) {
-                    return grey;
-                }
-            } catch (ParseException | EvaluationException e) {
-                log.warn("[Grey] parse condition failed, grey: {}", grey.predicate(), e);
-            }
+    /**
+     * @return possible empty mono, if no matched grey rule
+     */
+    @NotNull
+    private Mono<Map<String, List<Target>>> getMatchedRouteFromApi(ServerWebExchange exchange) {
+        EvaluationContext ec = evaluationContext(exchange);
+        return greyApi.findAll()
+                .flatMap(greys -> firstMatchedGrey(ec, greys))
+                .map(grey -> JsonUtil.toBean(grey.getRules(), new TypeReference<Map<String, List<Target>>>() {}));
+    }
+
+    private static EvaluationContext evaluationContext(ServerWebExchange exchange) {
+        Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
+        long timeMs = System.currentTimeMillis();
+        Ctx rootObject = new Ctx(
+                Map.copyOf(headers), timeMs, new SimpleDateFormat(Ctx.TIME_STR_FORMAT).format(new Date(timeMs)));
+        return new StandardEvaluationContext(rootObject);
+    }
+
+    private Mono<Grey> firstMatchedGrey(EvaluationContext ctx, List<Grey> greys) {
+        return Flux.fromIterable(greys).flatMap(grey -> matchGrey(ctx, grey)).next();
+    }
+
+    private Mono<Grey> matchGrey(EvaluationContext ctx, Grey grey) {
+        try {
+            Boolean result = parser.parseExpression(grey.getPredicate()).getValue(ctx, Boolean.class);
+            return Boolean.TRUE.equals(result) ? Mono.just(grey) : Mono.empty();
+        } catch (Exception e) {
+            log.warn("[Grey] evaluate expression failed, condition: " + grey.getPredicate(), e);
+            return Mono.empty();
         }
-        return null;
+    }
+
+    private ServerWebExchange addGreyVersionHeader(ServerWebExchange exchange, Map<String, List<Target>> ruleMap) {
+        if (!exchange.getRequest().getHeaders().containsKey(GreyConst.HEADER_GREY_VERSION)) {
+            return exchange.mutate()
+                    .request(exchange.getRequest()
+                            .mutate()
+                            .headers(headers -> headers.add(GreyConst.HEADER_GREY_VERSION, JsonUtil.toJson(ruleMap)))
+                            .build())
+                    .build();
+        }
+        return exchange;
     }
 
     @Override
     public int getOrder() {
         return ORDER;
-    }
-
-    private static boolean match(ServerWebExchange exchange, KubernetesGreyProperties.Rule rule) {
-        KubernetesGreyProperties.Rule.Predicates predicates = rule.getPredicates();
-
-        ServerHttpRequest request = exchange.getRequest();
-        HttpHeaders headers = request.getHeaders();
-
-        // validate header
-        AtomicBoolean hitAllHeaderConditions = new AtomicBoolean(true);
-        for (KubernetesGreyProperties.Rule.Predicates.Header header : predicates.getHeaders()) {
-            if (!hit(headers, header)) {
-                hitAllHeaderConditions.set(false);
-                break;
-            }
-        }
-        // quick pass
-        if (!hitAllHeaderConditions.get()) {
-            return false;
-        }
-
-        // validate ReactiveMatcher class
-        Class<? extends ReactiveMatcher> matcherClass = predicates.getReactiveMatcherClass();
-        if (matcherClass == null) {
-            return true;
-        }
-        ReactiveMatcher matcher = BeanUtils.instantiateClass(matcherClass);
-        return matcher.match(exchange.getRequest());
-    }
-
-    private static boolean hit(HttpHeaders headers, KubernetesGreyProperties.Rule.Predicates.Header header) {
-        List<String> headerValues = headers.get(header.getName());
-        if (CollectionUtils.isEmpty(headerValues)) {
-            return false;
-        }
-        for (String headerValue : headerValues) {
-            if (Pattern.matches(header.getPattern(), headerValue)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

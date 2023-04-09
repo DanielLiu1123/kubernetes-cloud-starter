@@ -1,12 +1,8 @@
 plugins {
-    id 'java'
-    id 'io.spring.dependency-management'
     id 'org.springframework.boot'
 }
 
 dependencies {
-    implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"))
-
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 

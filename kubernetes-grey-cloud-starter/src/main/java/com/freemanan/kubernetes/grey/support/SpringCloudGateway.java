@@ -20,8 +20,10 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 public class SpringCloudGateway {
 
     @Bean
-    public GreyApi greyApi(WebClient.Builder builder) {
-        WebClient webclient = builder.baseUrl("http://localhost:8080").build();
+    public GreyApi greyApi(WebClient.Builder builder, KubernetesGreyProperties properties) {
+        String url = properties.getGreyGateway().getUrl();
+        url = url.startsWith("http") ? url : "http://" + url;
+        WebClient webclient = builder.baseUrl(url).build();
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builder()
                 .clientAdapter(WebClientAdapter.forClient(webclient))
                 .build();
@@ -30,7 +32,7 @@ public class SpringCloudGateway {
 
     @Bean
     @ConditionalOnMissingBean
-    public GreyGlobalFilter greyGlobalFilter(KubernetesGreyProperties properties, GreyApi greyApi) {
-        return new GreyGlobalFilter(properties, greyApi);
+    public GreyGlobalFilter greyGlobalFilter(GreyApi greyApi) {
+        return new GreyGlobalFilter(greyApi);
     }
 }

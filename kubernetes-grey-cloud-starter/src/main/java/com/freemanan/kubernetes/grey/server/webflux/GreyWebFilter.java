@@ -1,11 +1,12 @@
 package com.freemanan.kubernetes.grey.server.webflux;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
+import com.freemanan.kubernetes.grey.common.Target;
 import com.freemanan.kubernetes.grey.common.thread.Context;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -28,9 +29,9 @@ public class GreyWebFilter implements WebFilter {
         if (!StringUtils.hasText(greyVersion)) {
             return chain.filter(exchange);
         }
-        List<Grey> greys;
+        Map<String, List<Target>> greys;
         try {
-            greys = JsonUtil.toBean(greyVersion, new TypeReference<List<Grey>>() {});
+            greys = JsonUtil.toBean(greyVersion, new TypeReference<Map<String, List<Target>>>() {});
         } catch (Exception e) {
             // Json parse error, don't fail the request, but can't do grey
             log.warn("Grey header JSON parse error, value: {}", greyVersion);

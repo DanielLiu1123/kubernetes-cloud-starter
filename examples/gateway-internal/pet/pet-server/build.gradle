@@ -1,16 +1,12 @@
 plugins {
-    id 'java'
-    id 'io.spring.dependency-management'
     id 'org.springframework.boot'
 }
 
 dependencies {
-    implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"))
-
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 
-//    implementation(project(":kubernetes-grey-cloud-starter"))
+    implementation(project(":kubernetes-grey-cloud-starter"))
     implementation(project(":examples:gateway-internal:pet:pet-api"))
 
     compileOnly("org.projectlombok:lombok")

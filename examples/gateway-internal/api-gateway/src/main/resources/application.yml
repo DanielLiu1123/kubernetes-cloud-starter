@@ -1,5 +1,7 @@
 server:
   port: 9999
+  error:
+    include-message: always
 spring:
   application:
     name: api-gateway
@@ -7,10 +9,15 @@ spring:
     gateway:
       routes:
         - id: user
-          uri: http://user:8080
+          uri: http://localhost:8081
           predicates:
-            - Path=/v*/user/**
+            - Path=/v*/user/**, /internal/v*/user/**
         - id: pet
-          uri: http://pet:8081
+          uri: http://localhost:8082
           predicates:
-            - Path=/v*/pet/**
+            - Path=/v*/pet/**, /internal/v*/pet/**
+microservice-base:
+  kubernetes:
+    grey:
+      grey-gateway:
+        url: localhost:8080

@@ -5,5 +5,5 @@ package com.freemanan.kubernetes.grey.common;
  */
 public class GreyConst {
 
-    public static final String HEADER_GREY_VERSION = "Grey-Version";
+    public static final String HEADER_GREY_VERSION = "X-Grey-Version";
 }

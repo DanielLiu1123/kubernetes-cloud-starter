@@ -1,9 +1,10 @@
 package com.freemanan.kubernetes.grey.client;
 
-import com.freemanan.kubernetes.grey.common.Destination;
-import com.freemanan.kubernetes.grey.common.Grey;
+import com.freemanan.kubernetes.grey.common.Target;
 import com.freemanan.kubernetes.grey.common.thread.Context;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Freeman
@@ -11,21 +12,9 @@ import java.util.List;
 public class Util {
 
     public static Context threadContext() {
-        Grey grey = new Grey();
+        Map<String, List<Target>> greys = new HashMap<>();
+        greys.put("master.default:8080", List.of(new Target("slave.default:8080", 100)));
 
-        Destination master = new Destination();
-        master.setService("master");
-        master.setNamespace("default");
-        master.setPort(8080);
-
-        Destination slave = new Destination();
-        slave.setService("slave");
-        slave.setNamespace("default");
-        slave.setPort(8080);
-
-        grey.setMaster(master);
-        grey.setFeatures(List.of(slave));
-
-        return new Context(List.of(grey));
+        return new Context(greys);
     }
 }

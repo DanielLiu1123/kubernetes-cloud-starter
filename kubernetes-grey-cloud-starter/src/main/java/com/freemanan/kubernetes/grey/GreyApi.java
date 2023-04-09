@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
  */
 public interface GreyApi {
     /**
-     * Find all available greys.
+     * Find all available greys, ordered by priority and created time.
      */
     @GetExchange("/v1/greys")
     Mono<List<Grey>> findAll();

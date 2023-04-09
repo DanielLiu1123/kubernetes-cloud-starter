@@ -6,6 +6,7 @@ plugins {
 }
 
 subprojects {
+    apply plugin: 'java'
     apply plugin: 'java-library'
     java {
         registerFeature("optional") {
@@ -22,6 +23,14 @@ subprojects {
     }
     test {
         useJUnitPlatform()
+    }
+    // dependency management
+    apply plugin: 'io.spring.dependency-management'
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
     }
     // spotless
     apply plugin: 'com.diffplug.spotless'

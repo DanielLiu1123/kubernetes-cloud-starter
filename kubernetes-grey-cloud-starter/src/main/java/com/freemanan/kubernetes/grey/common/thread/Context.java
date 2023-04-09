@@ -1,8 +1,10 @@
 package com.freemanan.kubernetes.grey.common.thread;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
-import com.freemanan.kubernetes.grey.common.Grey;
+import com.freemanan.kubernetes.grey.common.Target;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,22 +15,23 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class Context {
+public final class Context {
     private static final ThreadLocal<Context> holder = new TransmittableThreadLocal<>();
 
-    private final List<Grey> greys;
+    private final Map<String, List<Target>> greys;
 
     /**
      * Get greys in thread context.
      *
-     * @return greys, may be null
+     * @return greys, never null
      */
-    public static List<Grey> greys() {
+    public static Map<String, List<Target>> greys() {
         Context context = Context.get();
         if (context == null) {
-            return null;
+            return Collections.emptyMap();
         }
-        return context.getGreys();
+        Map<String, List<Target>> result = context.getGreys();
+        return result != null ? result : Collections.emptyMap();
     }
 
     public static void set(Context context) {

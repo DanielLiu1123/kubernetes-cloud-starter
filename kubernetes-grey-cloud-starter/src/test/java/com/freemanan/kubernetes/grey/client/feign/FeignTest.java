@@ -8,6 +8,7 @@ import com.freemanan.kubernetes.grey.common.thread.Context;
 import feign.RetryableException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.system.CapturedOutput;
@@ -30,6 +31,7 @@ public class FeignTest {
     void testGrey(CapturedOutput output) {
         ConfigurableApplicationContext ctx = new SpringApplicationBuilder(Config.class)
                 .properties("logging.level.com.freemanan.kubernetes.grey=debug")
+                .web(WebApplicationType.REACTIVE)
                 .run();
         Context.set(Util.threadContext());
 

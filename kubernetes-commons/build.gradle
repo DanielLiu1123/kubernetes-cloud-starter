@@ -1,9 +1,6 @@
 dependencies {
-    api platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
-    compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
-
-    compileOnly 'org.springframework.cloud:spring-cloud-starter'
+    optionalApi 'org.springframework.cloud:spring-cloud-starter'
     api "io.fabric8:kubernetes-client"
 }
 
-apply from: "${rootProject.projectDir}/deploy.gradle"
+apply from: "${rootDir}/deploy.gradle"

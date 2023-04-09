@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 /**
  * @author Freeman
  */
-@FeignClient(name = "dog", url = "http://pet:8081", path = "/v1/pet/dogs")
+@FeignClient(name = "dog", url = "http://localhost:9999", path = "/internal/v1/pet/dogs")
 public interface DogApi {
 
     @GetMapping

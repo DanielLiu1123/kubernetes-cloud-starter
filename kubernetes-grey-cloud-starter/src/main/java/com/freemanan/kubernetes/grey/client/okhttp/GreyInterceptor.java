@@ -1,13 +1,14 @@
 package com.freemanan.kubernetes.grey.client.okhttp;
 
-import com.freemanan.kubernetes.grey.common.Grey;
 import com.freemanan.kubernetes.grey.common.GreyConst;
+import com.freemanan.kubernetes.grey.common.Target;
 import com.freemanan.kubernetes.grey.common.thread.Context;
 import com.freemanan.kubernetes.grey.common.util.GreyUtil;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -27,8 +28,8 @@ public class GreyInterceptor implements Interceptor {
     @Override
     public Response intercept(@NotNull Chain chain) throws IOException {
         Request request = chain.request();
-        List<Grey> greys = Context.greys();
-        if (greys == null || greys.isEmpty()) {
+        Map<String, List<Target>> greys = Context.greys();
+        if (greys.isEmpty()) {
             return chain.proceed(request);
         }
         // add header

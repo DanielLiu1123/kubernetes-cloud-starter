@@ -1,8 +1,9 @@
 package com.freemanan.kubernetes.grey.client.webclient;
 
-import static org.assertj.core.api.Assertions.*;
+import static com.freemanan.kubernetes.grey.client.Util.threadContext;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import com.freemanan.kubernetes.grey.client.Util;
 import com.freemanan.kubernetes.grey.common.thread.Context;
 import com.freemanan.kubernetes.grey.common.thread.ReactorHookRegistrant;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ public class WebClientTest {
 
     @Test
     void testGrey_whenSync(CapturedOutput output) {
-        Context.set(Util.threadContext());
+        Context.set(threadContext());
 
         WebClient webClient =
                 WebClient.builder().filter(new GreyExchangeFilterFunction()).build();
@@ -41,9 +42,9 @@ public class WebClientTest {
 
     @Test
     void testGrey_whenAsync(CapturedOutput output) throws InterruptedException {
-        ReactorHookRegistrant.registerThreadLocalSupport(Context.class, Context::get, Context::set, Context::remove);
+        ReactorHookRegistrant.registerThreadLocalSupport4TTL();
 
-        Context.set(Util.threadContext());
+        Context.set(threadContext());
 
         WebClient webClient =
                 WebClient.builder().filter(new GreyExchangeFilterFunction()).build();

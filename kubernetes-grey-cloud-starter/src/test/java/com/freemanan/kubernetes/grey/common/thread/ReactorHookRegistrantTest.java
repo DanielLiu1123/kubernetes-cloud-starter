@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -22,7 +20,7 @@ import reactor.core.scheduler.Schedulers;
 class ReactorHookRegistrantTest {
 
     /**
-     * {@link ReactorHookRegistrant#registerThreadLocalSupport(Class, Supplier, Consumer, Runnable)}
+     * {@link ReactorHookRegistrant#registerThreadLocalSupport4TTL()}
      */
     @Test
     void registerThreadLocalSupport() throws InterruptedException {
