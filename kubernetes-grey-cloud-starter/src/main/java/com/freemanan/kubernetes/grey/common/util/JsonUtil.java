@@ -16,6 +16,9 @@ public class JsonUtil {
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public static String toJson(Object object) {
+        if (object == null) {
+            return null;
+        }
         try {
             return om.writeValueAsString(object);
         } catch (Exception e) {
@@ -24,6 +27,9 @@ public class JsonUtil {
     }
 
     public static <T> T toBean(String jsonstring, Class<T> clazz) {
+        if (jsonstring == null) {
+            return null;
+        }
         try {
             return om.readValue(jsonstring, clazz);
         } catch (Exception e) {
@@ -32,6 +38,9 @@ public class JsonUtil {
     }
 
     public static <T> T toBean(String jsonstring, TypeReference<T> typeReference) {
+        if (jsonstring == null) {
+            return null;
+        }
         try {
             return om.readValue(jsonstring, typeReference);
         } catch (Exception e) {

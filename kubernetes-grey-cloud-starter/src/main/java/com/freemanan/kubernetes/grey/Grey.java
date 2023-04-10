@@ -1,6 +1,9 @@
 package com.freemanan.kubernetes.grey;
 
+import com.freemanan.kubernetes.grey.common.Target;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 
 /**
@@ -9,7 +12,7 @@ import lombok.Data;
 @Data
 public class Grey {
     private Long id;
-    private String name;
+
     /**
      * variables:
      * <p> headers ({@code Map<String, String>}): request headers
@@ -22,10 +25,13 @@ public class Grey {
      */
     private String predicate;
 
+    private Map<String, List<Target>> rules;
+
+    private String name;
     private Integer priority;
     private String description;
     private String tickets;
-    private String rules;
+
     private Integer status;
     private Date createdAt;
     private Date updatedAt;

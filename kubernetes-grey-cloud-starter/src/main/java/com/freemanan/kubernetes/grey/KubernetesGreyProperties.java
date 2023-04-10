@@ -23,8 +23,8 @@ public class KubernetesGreyProperties {
     @Data
     public static class GreyGateway {
         /**
-         * Grey gateway url, default is {@code http://grey-gateway:8080}
+         * Grey gateway url, default is {@code grey-gateway:8080}
          */
-        private String url = "http://grey-gateway:8080";
+        private String url = "grey-gateway:8080";
     }
 }

@@ -51,9 +51,8 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String greyVersion = exchange.getRequest().getHeaders().getFirst(GreyConst.HEADER_GREY_VERSION);
-        Mono<Map<String, List<Target>>> routeMap = StringUtils.hasText(greyVersion)
-                ? Mono.just(JsonUtil.toBean(greyVersion, new TypeReference<Map<String, List<Target>>>() {}))
-                : getMatchedRouteFromApi(exchange);
+        Mono<Map<String, List<Target>>> routeMap =
+                StringUtils.hasText(greyVersion) ? parseRouteFromString(greyVersion) : getMatchedRouteFromApi(exchange);
 
         return routeMap.flatMap(rules -> {
                     ServerWebExchange headerAdded = addGreyVersionHeader(exchange, rules);
@@ -88,15 +87,23 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
                 .switchIfEmpty(chain.filter(exchange));
     }
 
+    @NotNull
+    private static Mono<Map<String, List<Target>>> parseRouteFromString(String greyVersion) {
+        return Mono.just(JsonUtil.toBean(greyVersion, new TypeReference<Map<String, List<Target>>>() {}))
+                .onErrorResume(e -> {
+                    // error format, no need to pass to downstream
+                    log.error("[Grey] parse grey version header error, value: {}", greyVersion, e);
+                    return Mono.empty();
+                });
+    }
+
     /**
      * @return possible empty mono, if no matched grey rule
      */
     @NotNull
     private Mono<Map<String, List<Target>>> getMatchedRouteFromApi(ServerWebExchange exchange) {
         EvaluationContext ec = evaluationContext(exchange);
-        return greyApi.findAll()
-                .flatMap(greys -> firstMatchedGrey(ec, greys))
-                .map(grey -> JsonUtil.toBean(grey.getRules(), new TypeReference<Map<String, List<Target>>>() {}));
+        return greyApi.findAll().flatMap(greys -> firstMatchedGrey(ec, greys)).map(Grey::getRules);
     }
 
     private static EvaluationContext evaluationContext(ServerWebExchange exchange) {
@@ -108,16 +115,16 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
     }
 
     private Mono<Grey> firstMatchedGrey(EvaluationContext ctx, List<Grey> greys) {
-        return Flux.fromIterable(greys).flatMap(grey -> matchGrey(ctx, grey)).next();
+        return Flux.fromIterable(greys).filter(grey -> match(ctx, grey)).take(1).singleOrEmpty();
     }
 
-    private Mono<Grey> matchGrey(EvaluationContext ctx, Grey grey) {
+    private boolean match(EvaluationContext ctx, Grey grey) {
         try {
             Boolean result = parser.parseExpression(grey.getPredicate()).getValue(ctx, Boolean.class);
-            return Boolean.TRUE.equals(result) ? Mono.just(grey) : Mono.empty();
+            return Boolean.TRUE.equals(result);
         } catch (Exception e) {
             log.warn("[Grey] evaluate expression failed, condition: " + grey.getPredicate(), e);
-            return Mono.empty();
+            return false;
         }
     }
 
