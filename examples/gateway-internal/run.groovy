@@ -12,8 +12,6 @@ def queue = new ArrayList<CompletableFuture>()
     })
 }
 
-
-
 CompletableFuture.allOf(queue.toArray(CompletableFuture[]::new)).join()
 
 result.forEach { k, v -> println "$k : $v" }

@@ -26,6 +26,7 @@ public class KubernetesGreyProperties {
          * Grey gateway url, default is <span color="orange">grey-gateway:8080</span>
          */
         private String authority = "grey-gateway:8080";
+
         private String path = "/v1/grey-gateway/greys";
     }
 }

@@ -52,8 +52,9 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String greyVersion = exchange.getRequest().getHeaders().getFirst(GreyConst.HEADER_GREY_VERSION);
-        Mono<Map<String, List<Target>>> routeMap =
-                StringUtils.hasText(greyVersion) ? parseRouteFromString(greyVersion) : getMatchedRouteFromApi(exchange);
+        Mono<Map<String, List<Target>>> routeMap = StringUtils.hasText(greyVersion)
+                ? parseRouteFromString(greyVersion)
+                : getMatchedRouteFromGreyGateway(exchange);
 
         return routeMap.flatMap(rules -> {
                     ServerWebExchange headerAdded = addGreyVersionHeader(exchange, rules);
@@ -102,9 +103,11 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
      * @return possible empty mono, if no matched grey rule
      */
     @NotNull
-    private Mono<Map<String, List<Target>>> getMatchedRouteFromApi(ServerWebExchange exchange) {
+    private Mono<Map<String, List<Target>>> getMatchedRouteFromGreyGateway(ServerWebExchange exchange) {
         EvaluationContext ec = evaluationContext(exchange);
-        return greyApi.findAll(uri).flatMap(greys -> firstMatchedGrey(ec, greys)).map(Grey::getRules);
+        return greyApi.findAll(uri)
+                .flatMap(greys -> firstMatchedGrey(ec, greys))
+                .map(Grey::getRules);
     }
 
     private static EvaluationContext evaluationContext(ServerWebExchange exchange) {

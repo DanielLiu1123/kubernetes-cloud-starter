@@ -3,6 +3,7 @@ package com.freemanan.kubernetes.grey.support;
 import com.freemanan.kubernetes.grey.GreyApi;
 import com.freemanan.kubernetes.grey.KubernetesGreyProperties;
 import com.freemanan.kubernetes.grey.server.scg.GreyGlobalFilter;
+import java.net.URI;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -11,8 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
-
-import java.net.URI;
 
 /**
  * @author Freeman

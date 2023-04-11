@@ -29,11 +29,11 @@ public class GreyUtil {
     /**
      * Check if in Kubernetes environment
      */
-    static boolean isInKubernetesEnvironment() {
+    private static boolean isInKubernetesEnvironment() {
         return Files.exists(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token"));
     }
 
-    static String getNamespace() {
+    private static String getNamespace() {
         try {
             String namespace = Files.readString(
                             Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/namespace"),
@@ -51,7 +51,7 @@ public class GreyUtil {
         }
     }
 
-    static String getSuffix() {
+    private static String getSuffix() {
         return StringUtils.hasText(namespace) ? "." + namespace : "";
     }
 
@@ -62,14 +62,14 @@ public class GreyUtil {
             return uri;
         }
 
-        // 计算总权重
+        // calculate total weight
         double total = targets.stream().mapToDouble(Target::getWeight).sum();
         if (total < 100) {
             targets.add(new Target(authority, 100 - total));
             total = 100;
         }
 
-        // 随机选择一个 Target
+        // random select
         double randomWeight = Math.random() * total;
         double weight = 0;
         for (Target target : targets) {
@@ -105,7 +105,9 @@ public class GreyUtil {
         if (Objects.equals(oldAuthority, newAuthority)) {
             return uri;
         }
-        String newUri = uri.toString().replaceFirst(oldAuthority, newAuthority);
-        return URI.create(newUri);
+        StringBuilder sb = new StringBuilder(uri.toString());
+        int start = sb.indexOf(oldAuthority);
+        sb.replace(start, start + oldAuthority.length(), newAuthority);
+        return URI.create(sb.toString());
     }
 }
