@@ -20,4 +20,4 @@ microservice-base:
   kubernetes:
     grey:
       grey-gateway:
-        url: localhost:8080
+        authority: localhost:8080

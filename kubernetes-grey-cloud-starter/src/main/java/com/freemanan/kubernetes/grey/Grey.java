@@ -23,7 +23,7 @@ public class Grey {
      * <p> header['x-user-id'] == '123' || header['x-user-name'] == 'freeman'
      * <p>
      */
-    private String predicate;
+    private String condition;
 
     private Map<String, List<Target>> rules;
 

@@ -34,7 +34,7 @@ public class GreyWebFilter implements WebFilter {
             greys = JsonUtil.toBean(greyVersion, new TypeReference<Map<String, List<Target>>>() {});
         } catch (Exception e) {
             // Json parse error, don't fail the request, but can't do grey
-            log.warn("Grey header JSON parse error, value: {}", greyVersion);
+            log.warn("[Grey] Grey header JSON parse error, value: {}", greyVersion);
             return chain.filter(exchange);
         }
         Context.set(new Context(greys));

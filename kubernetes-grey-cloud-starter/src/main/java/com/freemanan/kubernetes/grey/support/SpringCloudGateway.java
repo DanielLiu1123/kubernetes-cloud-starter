@@ -12,6 +12,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
+import java.net.URI;
+
 /**
  * @author Freeman
  */
@@ -20,19 +22,16 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 public class SpringCloudGateway {
 
     @Bean
-    public GreyApi greyApi(WebClient.Builder builder, KubernetesGreyProperties properties) {
-        String url = properties.getGreyGateway().getUrl();
-        url = url.startsWith("http") ? url : "http://" + url;
-        WebClient webclient = builder.baseUrl(url).build();
+    @ConditionalOnMissingBean
+    public GreyGlobalFilter greyGlobalFilter(WebClient.Builder builder, KubernetesGreyProperties properties) {
+        String authority = properties.getGreyGateway().getAuthority();
+        String baseUrl = authority.startsWith("http") ? authority : "http://" + authority;
+        WebClient webclient = builder.baseUrl(baseUrl).build();
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builder()
                 .clientAdapter(WebClientAdapter.forClient(webclient))
                 .build();
-        return factory.createClient(GreyApi.class);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public GreyGlobalFilter greyGlobalFilter(GreyApi greyApi) {
-        return new GreyGlobalFilter(greyApi);
+        GreyApi greyApi = factory.createClient(GreyApi.class);
+        String url = baseUrl + properties.getGreyGateway().getPath();
+        return new GreyGlobalFilter(greyApi, URI.create(url));
     }
 }

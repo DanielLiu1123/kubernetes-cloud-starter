@@ -28,7 +28,7 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -46,6 +46,7 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
     public static final int ORDER = NettyRoutingFilter.ORDER - 1;
 
     private final GreyApi greyApi;
+    private final URI uri;
     private final SpelExpressionParser parser = new SpelExpressionParser();
 
     @Override
@@ -79,7 +80,7 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
                     return chain.filter(uriChanged);
                 })
                 // request grey gateway failed, fallback to normal request
-                .onErrorResume(WebClientRequestException.class, e -> {
+                .onErrorResume(WebClientException.class, e -> {
                     log.error("[Grey] Request grey gateway failed", e);
                     return chain.filter(exchange);
                 })
@@ -92,7 +93,7 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
         return Mono.just(JsonUtil.toBean(greyVersion, new TypeReference<Map<String, List<Target>>>() {}))
                 .onErrorResume(e -> {
                     // error format, no need to pass to downstream
-                    log.error("[Grey] parse grey version header error, value: {}", greyVersion, e);
+                    log.warn("[Grey] Grey header JSON parse error, value: {}", greyVersion);
                     return Mono.empty();
                 });
     }
@@ -103,10 +104,11 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
     @NotNull
     private Mono<Map<String, List<Target>>> getMatchedRouteFromApi(ServerWebExchange exchange) {
         EvaluationContext ec = evaluationContext(exchange);
-        return greyApi.findAll().flatMap(greys -> firstMatchedGrey(ec, greys)).map(Grey::getRules);
+        return greyApi.findAll(uri).flatMap(greys -> firstMatchedGrey(ec, greys)).map(Grey::getRules);
     }
 
     private static EvaluationContext evaluationContext(ServerWebExchange exchange) {
+        // TODO(Freeman): support multi-value header
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
         long timeMs = System.currentTimeMillis();
         Ctx rootObject = new Ctx(
@@ -120,10 +122,10 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
 
     private boolean match(EvaluationContext ctx, Grey grey) {
         try {
-            Boolean result = parser.parseExpression(grey.getPredicate()).getValue(ctx, Boolean.class);
+            Boolean result = parser.parseExpression(grey.getCondition()).getValue(ctx, Boolean.class);
             return Boolean.TRUE.equals(result);
         } catch (Exception e) {
-            log.warn("[Grey] evaluate expression failed, condition: " + grey.getPredicate(), e);
+            log.error("[Grey] Evaluate expression failed, condition: " + grey.getCondition(), e);
             return false;
         }
     }
