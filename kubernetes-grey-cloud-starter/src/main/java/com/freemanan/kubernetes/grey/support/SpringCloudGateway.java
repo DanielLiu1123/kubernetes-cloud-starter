@@ -24,7 +24,7 @@ public class SpringCloudGateway {
     @ConditionalOnMissingBean
     public GreyGlobalFilter greyGlobalFilter(WebClient.Builder builder, KubernetesGreyProperties properties) {
         String authority = properties.getGreyGateway().getAuthority();
-        String baseUrl = authority.startsWith("http") ? authority : "http://" + authority;
+        String baseUrl = authority.contains("://") ? authority : "http://" + authority;
         WebClient webclient = builder.baseUrl(baseUrl).build();
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builder()
                 .clientAdapter(WebClientAdapter.forClient(webclient))

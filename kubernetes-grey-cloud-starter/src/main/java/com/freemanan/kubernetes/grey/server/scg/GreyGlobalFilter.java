@@ -11,8 +11,6 @@ import com.freemanan.kubernetes.grey.common.Target;
 import com.freemanan.kubernetes.grey.common.util.GreyUtil;
 import com.freemanan.kubernetes.grey.common.util.JsonUtil;
 import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -45,9 +43,10 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
      */
     public static final int ORDER = NettyRoutingFilter.ORDER - 1;
 
+    private static final SpelExpressionParser parser = new SpelExpressionParser();
+
     private final GreyApi greyApi;
     private final URI uri;
-    private final SpelExpressionParser parser = new SpelExpressionParser();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -113,9 +112,7 @@ public class GreyGlobalFilter implements GlobalFilter, Ordered {
     private static EvaluationContext evaluationContext(ServerWebExchange exchange) {
         // TODO(Freeman): support multi-value header
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
-        long timeMs = System.currentTimeMillis();
-        Ctx rootObject = new Ctx(
-                Map.copyOf(headers), timeMs, new SimpleDateFormat(Ctx.TIME_STR_FORMAT).format(new Date(timeMs)));
+        Ctx rootObject = new Ctx(Map.copyOf(headers));
         return new StandardEvaluationContext(rootObject);
     }
 

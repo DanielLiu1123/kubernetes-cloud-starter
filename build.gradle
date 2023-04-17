@@ -48,6 +48,8 @@ subprojects {
     apply plugin: 'com.github.spotbugs'
     spotbugs {
         spotbugsTest.enabled = false
-        omitVisitors.addAll 'FindReturnRef', 'MethodReturnCheck'
+        // Code contains a hard coded reference to an absolute pathname, omit 'DumbMethodInvocations'
+        // see com.freemanan.kubernetes.grey.common.util.GreyUtil
+        omitVisitors.addAll 'FindReturnRef', 'MethodReturnCheck', 'DumbMethodInvocations'
     }
 }

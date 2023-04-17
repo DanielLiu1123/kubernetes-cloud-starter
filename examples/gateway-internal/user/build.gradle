@@ -3,7 +3,9 @@ plugins {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
+//    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-json")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 
     implementation(project(":kubernetes-grey-cloud-starter"))

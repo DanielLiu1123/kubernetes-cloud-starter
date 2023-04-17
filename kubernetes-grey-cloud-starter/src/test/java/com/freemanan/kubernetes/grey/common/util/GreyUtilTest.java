@@ -33,7 +33,23 @@ class GreyUtilTest {
                 .isNotEmpty();
         assertThat(getMatchedRule("todo.ns", Map.of("todo", List.of(mock(Target.class))), true, ".ns"))
                 .isNotEmpty();
+        assertThat(getMatchedRule("todo:8080", Map.of("todo.ns:8080", List.of(mock(Target.class))), true, ".ns"))
+                .isNotEmpty();
+        assertThat(getMatchedRule("todo.ns:8080", Map.of("todo:8080", List.of(mock(Target.class))), true, ".ns"))
+                .isNotEmpty();
+        assertThat(getMatchedRule("todo.ns:8081", Map.of("todo:8080", List.of(mock(Target.class))), true, ".ns"))
+                .isEmpty();
+        assertThat(getMatchedRule("todo.ns", Map.of("todo:8080", List.of(mock(Target.class))), true, ".ns"))
+                .isEmpty();
         assertThat(getMatchedRule("todo", Map.of("todo.nss", List.of(mock(Target.class))), true, ".ns"))
                 .isEmpty();
+    }
+
+    @Test
+    void testURI() {
+        URI uri = URI.create("http://example.com:80/xxx");
+        System.out.println(uri.getAuthority());
+        System.out.println(uri.getHost());
+        System.out.println(uri.getPort());
     }
 }

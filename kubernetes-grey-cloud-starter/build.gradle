@@ -1,13 +1,15 @@
 dependencies {
     api(project(':kubernetes-commons'))
 
+    api("org.springframework.boot:spring-boot-starter")
+    api("com.fasterxml.jackson.core:jackson-databind")
+    api("com.alibaba:transmittable-thread-local:${transmittableThreadLocalVersion}")
+
     optionalApi "org.springframework.boot:spring-boot-starter-web"
     optionalApi "org.springframework.boot:spring-boot-starter-webflux"
     optionalApi "org.springframework.cloud:spring-cloud-starter-gateway"
     optionalApi "org.springframework.cloud:spring-cloud-starter-openfeign"
     optionalApi "com.squareup.okhttp3:okhttp"
-    api("com.fasterxml.jackson.core:jackson-databind")
-    api("com.alibaba:transmittable-thread-local:${transmittableThreadLocalVersion}")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

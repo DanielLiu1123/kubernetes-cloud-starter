@@ -22,6 +22,9 @@ import org.springframework.util.StringUtils;
 public class GreyUtil {
     private static final Logger log = LoggerFactory.getLogger(GreyUtil.class);
 
+    private static final String TOKEN_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token";
+    private static final String NAMESPACE_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/namespace";
+
     private static final boolean isInK8s = isInKubernetesEnvironment();
     private static final String namespace = getNamespace();
     private static final String suffix = getSuffix();
@@ -30,14 +33,12 @@ public class GreyUtil {
      * Check if in Kubernetes environment
      */
     private static boolean isInKubernetesEnvironment() {
-        return Files.exists(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token"));
+        return Files.exists(Paths.get(TOKEN_PATH));
     }
 
     private static String getNamespace() {
         try {
-            String namespace = Files.readString(
-                            Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/namespace"),
-                            StandardCharsets.UTF_8)
+            String namespace = Files.readString(Paths.get(NAMESPACE_PATH), StandardCharsets.UTF_8)
                     .trim();
             if (log.isDebugEnabled()) {
                 log.debug("Application is in Kubernetes environment, namespace: '{}'", namespace);
@@ -89,11 +90,25 @@ public class GreyUtil {
             String authority, Map<String, List<Target>> mapping, boolean isInK8s, String suffix) {
         List<Target> result = mapping.get(authority);
         if (result == null && isInK8s) {
-            result = mapping.get(authority + suffix);
-            if (result == null) {
-                int i = authority.lastIndexOf(suffix);
-                if (i > 0) {
-                    result = mapping.get(authority.substring(0, i));
+            int portIdx = authority.lastIndexOf(":");
+            if (portIdx > 0) {
+                String host = authority.substring(0, portIdx);
+                String portPart = authority.substring(portIdx);
+                result = mapping.get(host + suffix + portPart);
+                if (result == null) {
+                    // .ns:port
+                    int i = authority.lastIndexOf(suffix + portPart);
+                    if (i > 0) {
+                        result = mapping.get(authority.substring(0, i) + portPart);
+                    }
+                }
+            } else {
+                result = mapping.get(authority + suffix);
+                if (result == null) {
+                    int i = authority.lastIndexOf(suffix);
+                    if (i > 0) {
+                        result = mapping.get(authority.substring(0, i));
+                    }
                 }
             }
         }
