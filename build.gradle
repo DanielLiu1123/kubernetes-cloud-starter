@@ -21,6 +21,10 @@ subprojects {
         options.encoding = 'UTF-8'
         options.compilerArgs << '-parameters'
     }
+    compileTestJava {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-parameters'
+    }
     test {
         useJUnitPlatform()
     }

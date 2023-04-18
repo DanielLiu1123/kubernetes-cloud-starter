@@ -5,3 +5,7 @@ server:
 spring:
   application:
     name: user
+http-exchange:
+  clients:
+    - name: DogApi
+      base-url: localhost:9082

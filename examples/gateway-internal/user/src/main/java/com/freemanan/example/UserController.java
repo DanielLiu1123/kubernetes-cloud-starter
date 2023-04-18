@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Freeman
@@ -29,12 +30,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User get(@PathVariable Long id) {
-        return db.get(id);
+    public Mono<User> get(@PathVariable Long id) {
+        return Mono.justOrEmpty(db.get(id));
     }
 
     @GetMapping("/{userId}/dogs")
-    public List<Dog> listDogs(@PathVariable Long userId) {
+    public Mono<List<Dog>> listDogs(@PathVariable Long userId) {
         return dogApi.search(Dog.of(null, userId, null));
     }
 }

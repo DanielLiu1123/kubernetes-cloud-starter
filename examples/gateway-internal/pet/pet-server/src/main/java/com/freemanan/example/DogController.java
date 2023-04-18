@@ -6,9 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,13 +34,13 @@ public class DogController implements DogApi {
 
     @Override
     @GetMapping("/{id}")
-    public Dog get(@PathVariable("id") Long id) {
+    public Dog get(Long id) {
         return db.get(id);
     }
 
     @Override
     @PostMapping("/search")
-    public List<Dog> search(@RequestBody Dog dog) {
+    public List<Dog> search(Dog dog) {
         if (dog == null) {
             return List.of();
         }
